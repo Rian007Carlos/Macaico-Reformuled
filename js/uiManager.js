@@ -194,32 +194,51 @@ export class UIManager {
     // Renderiza a Mina
     // Dentro da classe UIManager
     renderMine() {
-        const container = document.getElementById('buildings-container');
-        if (!container) return;
+    const container = document.getElementById('buildings-container');
+    if (!container) return;
 
-        // Evita duplicar
-        if (this.player.mine.unlocked && !container.querySelector('#mine')) {
-            const mineEl = document.createElement('div');
-            mineEl.id = 'mine';
-            mineEl.classList.add('building');
+    // Evita duplicar
+    if (this.player.mine.unlocked && !container.querySelector('#mine')) {
+        const mineEl = document.createElement('div');
+        mineEl.id = 'mine';
+        mineEl.classList.add('building');
 
-            const info = document.createElement('span');
-            info.classList.add('mine-info');
-            info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
+        const info = document.createElement('span');
+        info.classList.add('mine-info');
+        info.textContent = this.getMineInfoText();
 
-            const upgradeBtn = document.createElement('button');
-            upgradeBtn.textContent = "Upgrade Mina";
-            upgradeBtn.addEventListener('click', () => {
-                if (this.player.upgradeMine()) {
-                    this.updateMineUI();
-                }
-            });
+        const upgradeBtn = document.createElement('button');
+        upgradeBtn.textContent = "Upgrade Mina";
+        upgradeBtn.addEventListener('click', () => {
+            const cost = getMineCost(this.player.mine.level);
+            if (this.player.spendBananas(cost)) {
+                this.player.mine.level++;
+                this.updateMineUI();
+            } else {
+                alert("Bananas insuficientes!");
+            }
+        });
 
-            mineEl.appendChild(info);
-            mineEl.appendChild(upgradeBtn);
-            container.appendChild(mineEl);
-        }
+        mineEl.appendChild(info);
+        mineEl.appendChild(upgradeBtn);
+        container.appendChild(mineEl);
     }
+}
+
+// Gera o texto descritivo da mina
+getMineInfoText() {
+    const level = this.player.mine.level;
+    const cost = getMineCost(level);
+    const production = getMineProduction(level);
+    return `⛏️ Mina - Nível: ${level} | Próximo upgrade: ${cost} bananas | Produção: ${production} prismática(s) / ciclo (30s)`;
+}
+
+updateMineUI() {
+    const info = document.querySelector('#mine .mine-info');
+    if (info) {
+        info.textContent = this.getMineInfoText();
+    }
+}
 
     updateMineUI() {
         const info = document.querySelector('#mine .mine-info');
