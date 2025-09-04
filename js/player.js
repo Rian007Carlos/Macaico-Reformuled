@@ -84,6 +84,7 @@ export class Player {
         if (!this.mine.unlocked) {
             this.mine.unlocked = true;
             this.mine.level = 1;
+            this.mine.production = 0;
             return true;
         }
         return false;
@@ -95,6 +96,7 @@ export class Player {
         const cost = 50 * (this.mine.level + 1);
         if (this.spendBananas(cost)) {
             this.mine.level++;
+            console.log(this.mine.level);
             this.updateDisplay();
             return true;
         }

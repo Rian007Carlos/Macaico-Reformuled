@@ -207,16 +207,16 @@ export class UIManager {
             info.classList.add('mine-info');
             info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
 
-            const upgradeBtn = document.createElement('button');
-            upgradeBtn.textContent = "Upgrade Mina";
-            upgradeBtn.addEventListener('click', () => {
+            const mininingButton = document.createElement('button');
+            mininingButton.textContent = "Mineirar";
+            mininingButton.addEventListener('click', () => {
                 if (this.player.upgradeMine()) {
                     this.updateMineUI();
                 }
             });
 
             mineEl.appendChild(info);
-            mineEl.appendChild(upgradeBtn);
+            mineEl.appendChild(mininingButton);
             container.appendChild(mineEl);
         }
     }

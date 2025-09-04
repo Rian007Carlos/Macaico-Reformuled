@@ -58,6 +58,7 @@ export class UpgradeMonkey {
         if (player.spendBananas(this.cost)) {
             this.level++;
             this.updateCost();
+            console.log(this.bananasPerSecond)
             if (uiManager) {
                 uiManager.updateMonkeyDescription(this);
                 // uiManager.checkAllUnlocks();
