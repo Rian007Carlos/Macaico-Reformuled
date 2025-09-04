@@ -93,15 +93,25 @@ export class Player {
     upgradeMine() {
         if (!this.mine.unlocked) return false;
 
-        const cost = 50 * (this.mine.level + 1);
+        getMineCost();
         if (this.spendBananas(cost)) {
             this.mine.level++;
             console.log(this.mine.level);
             this.updateDisplay();
             return true;
         }
-        return false;
-    }
+
+        getMineCost(level) {
+            const baseCost = 50;
+            const exponent = 2.2;
+            const nextLevel = level + 1;
+return ( Math.floor(base * Math.pow(nextLevel, exponent)));
+            
+        }
+        getMineProduction(level) {
+    const baseProduction = 1;   // prismática por ciclo no nível 1
+    return baseProduction * level;  
+        }
 
     reset() {
         this.bananas = 0;
