@@ -84,6 +84,7 @@ export class Player {
         if (!this.mine.unlocked) {
             this.mine.unlocked = true;
             this.mine.level = 1;
+            this.mine.production = 0;
             return true;
         }
         return false;
@@ -92,24 +93,15 @@ export class Player {
     upgradeMine() {
         if (!this.mine.unlocked) return false;
 
-        getMineCost();
+        const cost = 50 * (this.mine.level + 1);
         if (this.spendBananas(cost)) {
             this.mine.level++;
+            console.log(this.mine.level);
             this.updateDisplay();
             return true;
         }
-
-        getMineCost(level) {
-            const baseCost = 50;
-            const exponent = 2.2;
-            const nextLevel = level + 1;
-return ( Math.floor(base * Math.pow(nextLevel, exponent)));
-            
-        }
-        getMineProduction(level) {
-    const baseProduction = 1;   // prismática por ciclo no nível 1
-    return baseProduction * level;  
-        }
+        return false;
+    }
 
     reset() {
         this.bananas = 0;
