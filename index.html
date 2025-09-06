@@ -15,7 +15,9 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow-y: auto;
             max-width: 100%;
+            box-sizing: content-box;
         }
 
         #hud {
@@ -98,10 +100,6 @@
             background: #ffcc33;
         }
 
-        #banana-count {
-            back
-        }
-
         @media(max-width: 768px) {
             body {
                 font-size: 2em;
@@ -109,7 +107,12 @@
 
             #hud {
                 width: 100%;
-                padding: 1em:
+                max-width: 100vw;
+                padding: 2em 1em;
+            }
+
+            #upgrades-container {
+                width: 100%;
             }
         }
     </style>
@@ -117,16 +120,17 @@
 
 <body>
 
-    <!-- Botões de controle -->
-    <div>
-        <button id="save-button">Salvar</button>
-        <button id="load-button">📂 Carregar</button>
-        <button id="reset-button">Resetar</button>
-    </div>
-    <h1>🐒 Macaicos Clicker</h1>
+
 
     <!-- HUD -->
     <div id="hud">
+        <!-- Botões de controle -->
+        <div>
+            <button id="save-button">Salvar</button>
+            <button id="load-button">📂 Carregar</button>
+            <button id="reset-button">Resetar</button>
+        </div>
+        <h1>🐒 Macaicos Clicker</h1>
         <div>Bananas: <span id="banana-count">0</span></div>
         <div>Prismatics: <span id="prismatics-count">0</span></div>
         <div>Banananas /s: <span id="bananas-per-second">0</span></div>
