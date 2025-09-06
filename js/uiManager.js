@@ -26,6 +26,7 @@ export class UIManager {
         this.checkAllUnlocks();
 
         this.renderAllUnlockedMonkeys();
+        this.updateBananasPerSec();
     }
 
     ClickOnBanana() {
@@ -60,6 +61,7 @@ export class UIManager {
                 GameState.load(this.player, this.elements.upgrades, this.elements.buildings);
                 this.checkAllUnlocks(); // garante que os macacos desbloqueados apareçam
                 this.renderAllUnlockedMonkeys();
+                this.updateBananasPerSec();
                 this.updateAll();        // atualiza HUD
             });
         }
@@ -75,13 +77,12 @@ export class UIManager {
 
         if (this.elements.resetButton) {
             this.elements.resetButton.addEventListener('click', () => {
-                GameState.reset(this.player, this.elements.upgrades, this.elements.buildings);
+                GameState.reset(this.player, this.elements.upgrades, this.elements.buildings, this);
                 this.clearMonkeys();
                 this.clearBuildings();
-                this.updateAll();
                 this.checkAllUnlocks();
-
-
+                this.renderAllUnlockedMonkeys();
+                this.updateAll();
 
             });
         }
@@ -104,7 +105,9 @@ export class UIManager {
         monkeyEl.appendChild(description);
 
         description.classList.add('description');
-        description.textContent = `Nome: ${monkey.name} | Custo: ${monkey.cost} | Level: ${monkey.level} | Produção: ${monkey.getProduction()} bananas/s `;
+        description.textContent = `Nome: ${monkey.name}
+        Custo: ${formatNumber(monkey.cost)} 
+        Level: ${monkey.level} | Produção: ${monkey.getProduction()} bananas/s `;
         monkeyEl.appendChild(buyBtn);
 
         buyBtn.textContent = "Comprar";
@@ -138,7 +141,8 @@ export class UIManager {
         if (monkeyEl) {
             const description = monkeyEl.querySelector('.description');
             if (description) {
-                description.textContent = `Nome: ${monkey.name} | Custo: ${monkey.cost} | Level: ${monkey.level} | Produção: ${monkey.getProduction()}  bananas/s `;
+                description.textContent = `Nome: ${monkey.name} | 
+                Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${monkey.getProduction()}  bananas/s `;
             }
         }
     }
@@ -186,9 +190,22 @@ export class UIManager {
         }
     }
 
+    updateBananasPerSec() {
+        if (this.elements.bananasPerSec) {
+            const totalBPS = this.elements.upgrades.reduce((sum, monkey) => {
+                return sum + (monkey.unlocked ? monkey.getProduction() : 0);
+            }, 0);
+
+            this.player.bananasPerSecond = totalBPS;
+            this.elements.bananasPerSec.textContent = formatNumber(totalBPS);
+        }
+
+    }
+
     updateAll() {
         this.updateBananas();
         this.updatePrismatics();
+        this.updateBananasPerSec();
     }
 
     // Renderiza a Mina

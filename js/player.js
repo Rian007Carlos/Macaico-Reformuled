@@ -57,7 +57,7 @@ export class Player {
             this.prismaticsCountElement.textContent = formatNumber(this.prismatics);
         }
 
-        if (this.bananaCountElement) {
+        if (this.bananasPerSecondElement) {
             this.bananasPerSecondElement.textContent = formatNumber(this.bananasPerSecond);
         }
 

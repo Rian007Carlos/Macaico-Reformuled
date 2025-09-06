@@ -1,9 +1,9 @@
 export class UpgradeMonkey {
-    constructor({ name, cost, bananasPerSecond, unlockAt = {}, unlocksFeature = null, multiplier = 1, costExponent = 1.15 }) {
+    constructor({ name, cost, baseProduction, unlockAt = {}, unlocksFeature = null, multiplier = 1, costExponent = 1.15 }) {
         this.name = name;
         this.baseCost = cost;
         this.cost = cost;
-        this.bananasPerSecond = bananasPerSecond;
+        this.baseProduction = baseProduction;
         this.unlocked = false;
         this.unlockAt = unlockAt;
         this.unlocksFeature = unlocksFeature;
@@ -15,7 +15,7 @@ export class UpgradeMonkey {
     }
 
     getProduction() {
-        return (this.bananasPerSecond * this.level) * this.multiplier;
+        return (this.baseProduction * this.level) * this.multiplier;
     }
 
     // Apenas desbloqueia, não adiciona bananas
@@ -45,35 +45,40 @@ export class UpgradeMonkey {
         return unlockedNow;
     }
 
-    startProduction(player) {
+    startProduction(player, uiManager) {
         if (this.level > 0 && !this.isProducing) {
             this.isProducing = true;
             this.intervalID = setInterval(() => {
                 player.addBananas(this.getProduction());
             }, 1000);
+
+            if (uiManager) {
+                uiManager.updateBananasPerSec();
+            }
         }
     }
 
     buy(player, uiManager) {
-        if (player.spendBananas(this.cost)) {
-            this.level++;
-            this.updateCost();
-            console.log(this.bananasPerSecond)
-            if (uiManager) {
-                uiManager.updateMonkeyDescription(this);
-                // uiManager.checkAllUnlocks();
+        if (!player.spendBananas(this.cost)) return false;
 
-                if (this.name === "Macaco-prego" && this.level === 1) {
-                    if (player.unlockMine()) {
-                        uiManager.renderMine();
-                    }
+        this.level++;
+        this.updateCost();
+
+        if (uiManager) {
+            uiManager.updateMonkeyDescription(this);
+            uiManager.updateBananasPerSec();
+
+            // Desbloqueio da mina ao comprar o primeiro Macaco-prego
+            if (this.name === "Macaco-prego" && this.level === 1) {
+                if (player.unlockMine()) {
+                    uiManager.renderMine();
                 }
-
             }
-            this.startProduction(player);
-            return true;
         }
-        return false;
+
+        // IMPORTANTE: passar uiManager aqui também
+        this.startProduction(player, uiManager);
+        return true;
     }
 
     updateCost() {

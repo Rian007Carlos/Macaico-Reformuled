@@ -23,42 +23,50 @@ export const GameState = {
         localStorage.setItem('monkeyGameState', JSON.stringify(data));
     },
 
-    load(player, upgrades, buildings) {
+    load(player, upgrades, buildings, ui) {
         const saved = localStorage.getItem('monkeyGameState');
         if (!saved) return;
 
         const data = JSON.parse(saved);
 
-        // Carrega player
-        Object.assign(player, data.player);
+        // === Player ===
+        player.bananas = data.player.bananas ?? 0;
+        player.prismatics = data.player.prismatics ?? 0;
+        player.deck = [...(data.player.deck ?? [])];
+        player.mine = { ...player.mine, ...(data.player.mine ?? {}) };
+        player.laboratory = { ...player.laboratory, ...(data.player.laboratory ?? {}) };
+        player.forge = { ...player.forge, ...(data.player.forge ?? {}) };
 
-        // Carrega upgrades
+        // === Upgrades ===
         upgrades.forEach(monkey => {
             const savedMonkey = data.upgrades.find(m => m.name === monkey.name);
             if (savedMonkey) {
-                monkey.level = savedMonkey.level;
-                monkey.unlocked = savedMonkey.unlocked;
-                monkey.cost = savedMonkey.cost;
-                monkey.multiplier = savedMonkey.multiplier;
-                monkey.costExponent = savedMonkey.costExponent;
+                monkey.level = savedMonkey.level ?? 0;
+                monkey.unlocked = savedMonkey.unlocked ?? false;
+                monkey.cost = savedMonkey.cost ?? monkey.baseCost;
+                monkey.multiplier = savedMonkey.multiplier ?? 1;
+                monkey.costExponent = savedMonkey.costExponent ?? 1.15;
 
-                // inicia produção automática se o nível > 0
-                if (monkey.level > 0) monkey.startProduction(player);
+                if (monkey.level > 0) monkey.startProduction(player, ui);
             }
         });
 
-        // Carrega prédios
+
+
+        // === Buildings ===
         buildings.forEach(building => {
             const savedBuilding = data.buildings.find(b => b.name === building.name);
-            if (savedBuilding) building.unlocked = savedBuilding.unlocked;
+            if (savedBuilding) building.unlocked = savedBuilding.unlocked ?? false;
         });
 
-        if (player.mine.unlocked && window.ui) {
-            ui.renderMine();
-        }
+        // Renderiza prédios desbloqueados
+        if (player.mine.unlocked) ui.renderMine();
+
+        // Atualiza HUD
+        ui.updateAll();
     },
 
-    reset(player, upgrades, buildings) {
+    reset(player, upgrades, buildings, ui) {
         player.reset();
 
         upgrades.forEach(m => {
@@ -66,15 +74,16 @@ export const GameState = {
             m.unlocked = false;
             m.cost = m.baseCost;
             m.multiplier = 1;
-
-            // para qualquer produção ativa
             m.isProducing = false;
             if (m.intervalID) clearInterval(m.intervalID);
         });
 
         buildings.forEach(b => b.unlocked = false);
 
-        // limpa o save
         localStorage.removeItem('monkeyGameState');
+
+        ui.clearMonkeys();
+        ui.clearBuildings();
+        ui.updateAll();
     }
 };
