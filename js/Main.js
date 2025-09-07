@@ -10,6 +10,7 @@ const player = new Player(null);
 createSkillTree(player);
 
 const upgrades = [...upgradeMonkeys];
+player.upgrades = upgrades;
 const buildings = [
     { name: 'mine', unlocked: player.mine.unlocked },
     { name: 'laboratory', unlocked: player.laboratory.unlocked },

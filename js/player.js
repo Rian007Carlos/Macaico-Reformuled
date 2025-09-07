@@ -5,6 +5,8 @@ export class Player {
         this.bananas = 0;
         this.prismatics = 0;
         this.bananasPerSecond = 0;
+        this.upgrades = [];
+        this.productionMultiplier = 1;
         this.skills = [];
         this.skillCategories = ["click", "bananas", "production", "mine", "lab", "forge", "multiplier", "monkeys", "rare"];
         this.deck = [];
@@ -14,8 +16,13 @@ export class Player {
     }
 
     addBananas(amount) {
-        this.bananas += amount;
-        this.refreshHUD(); // ⚡ sempre atualiza o HUD
+        this.bananasFraction = (this.bananasFraction || 0) + amount;
+        const whole = Math.floor(this.bananasFraction);
+        if (whole > 0) {
+            this.bananas += whole;
+            this.bananasFraction -= whole;
+        }
+        this.refreshHUD();
     }
 
     spendBananas(amount) {
@@ -43,12 +50,25 @@ export class Player {
 
     recalculateBPS() {
         let bps = 0;
-        this.deck.forEach(monkey => {
-            bps += monkey.getProduction();
+
+        // Se upgrades existir e não estiver vazio, usa ele.
+        // Se não, por segurança, cai em this.deck(compatibilidade).
+        const source = (this.upgrades && this.upgrades.length) ? this.upgrades : this.deck;
+
+        source.forEach(monkey => {
+            // soma apenas macacos que reamlente produzem
+            if (monkey && monkey.unlocked && monkey.level > 0 && typeof monkey.getProduction == "function") {
+                bps += monkey.getProduction();
+            }
         });
-        if (this.mine.unlocked) {
-            bps += this.mine.production * this.mine.level; // ou getProduction()
+
+        if (this.mine?.unlocked) {
+            const mineProduction = (this.mine.production || 0) * (this.mine.level || 0);
         }
+
+        // segurança contra Nan/Infinity
+        if (!isFinite(bps) || isNaN(bps)) bps = 0;
+
         this.bananasPerSecond = bps;
     }
 

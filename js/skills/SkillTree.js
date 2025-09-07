@@ -31,7 +31,7 @@ const skillTreeData = [
         unlocked: true,
         parents: [],
         effect: (player, level) => {
-            player.bananasPerSecond += player.bananasPerSecond * (1 + 10.1 * level);
+            player.bananasPerSecond += player.bananasPerSecond * (1 + 2 * level);
         }
     },
     {

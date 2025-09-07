@@ -18,7 +18,7 @@ export class UpgradeMonkey {
     }
 
     getProduction() {
-        return (this.baseProduction * this.level) * this.multiplier;
+        return Math.floor((this.baseProduction * this.level) * this.multiplier);
     }
 
     // Apenas desbloqueia, não adiciona bananas

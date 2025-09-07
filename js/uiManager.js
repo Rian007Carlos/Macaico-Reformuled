@@ -142,9 +142,11 @@ export class UIManager {
     updateBananaDisplay(amount) {
         if (this.elements.bananaCount) this.elements.bananaCount.textContent = formatNumber(amount);
     }
+
     updatePrismaticDisplay(amount) {
         if (this.elements.prismaticsCount) this.elements.prismaticsCount.textContent = formatNumber(amount);
     }
+
     updateBananasPerSecondDisplay(amount) {
         if (this.elements.bananasPerSecond) this.elements.bananasPerSecond.textContent = formatNumber(amount);
     }
