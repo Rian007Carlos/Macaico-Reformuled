@@ -3,15 +3,11 @@ import { Player } from './player.js';
 import { UIManager } from './uiManager.js';
 import { upgradeMonkeys } from './Monkey.js';
 import { createSkillTree, renderSkillTreeSVG } from './skills/SkillTree.js';
-import { SkillTreeUI } from './skills/SkillTreeUI.js'
 import { SkillNode } from './skills/SkillNode.js';
 
 // === Instâncias principais ===
 const player = new Player(null);
 createSkillTree(player);
-renderSkillTreeSVG()
-const skillTreeUI = new SkillTreeUI(player, "skill-tree-container", "skill-tree-lines");
-skillTreeUI.renderTree();
 const upgrades = [...upgradeMonkeys];
 const buildings = [
     { name: 'mine', unlocked: player.mine.unlocked },

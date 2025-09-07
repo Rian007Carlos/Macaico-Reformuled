@@ -6,7 +6,7 @@ export class Player {
         this.prismatics = 0;
         this.bananasPerSecond = 0;
         this.skills = [];
-        this.skillCategories = ["click", "production", "mine", "lab", "forge", "multiplier"];
+        this.skillCategories = ["click", "bananas", "production", "mine", "lab", "forge", "multiplier", "monkeys", "rare"];
         this.deck = [];
         this.mine = { unlocked: false, level: 0, production: 0, multiplier: 0 };
         this.laboratory = { unlocked: false };
@@ -54,6 +54,10 @@ export class Player {
 
     addSkillNode(skillNode) {
         this.skills.push(skillNode);
+    }
+
+    getSkillById(id) {
+        return this.skills.find(skill => skill.id === id);
     }
 
     refreshHUD() {

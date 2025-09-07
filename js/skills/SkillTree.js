@@ -1,19 +1,36 @@
 import { SkillNode } from "./SkillNode.js";
 import { Player } from "../player.js";
+import { upgradeMonkeys } from "../Monkey.js";
 
 // Skill tree dinâmica com coordenadas e pais
 const skillTreeData = [
+    upgradeMonkeys.map(monkey => ({
+        id: `skill_${monkey.name}`,
+        name: monkey.name,
+        description: `Aumenta a produção de ${monkey.name} em 1% por nível`,
+        category: "monkeys",
+        maxLevel: 100,
+        parents: [],
+        targetMonkey: monkey,
+        effect: (player, level, monkey) => {
+            if (!monkey) return;
+
+            monkey.multiplier = 1 + 0.01 * level;
+
+            player.recalculateBPS();
+            player.refreshHUD();
+        }
+    })),
     {
         id: "bananaBoost1",
         name: "Banana Boost I",
         description: "Aumenta a produção de bananas em 10%",
         category: "bananas",
         maxLevel: 3,
-        x: 100,
-        y: 100,
+        unlocked: true,
         parents: [],
         effect: (player, level) => {
-            player.bananasPerSecond = player.bananasPerSecond * (1 + 0.1 * level);
+            player.bananasPerSecond = player.bananasPerSecond * (1 + 10.1 * level);
         }
     },
     {
@@ -22,8 +39,6 @@ const skillTreeData = [
         description: "Aumenta a produção de bananas em +20%",
         category: "bananas",
         maxLevel: 2,
-        x: 300,
-        y: 100,
         parents: ["bananaBoost1"],
         unlockRequirements: [
             (player) => player.getSkillById("bananaBoost1")?.level >= 3
@@ -38,8 +53,6 @@ const skillTreeData = [
         description: "Aumenta produção da mina",
         category: "mine",
         maxLevel: 2,
-        x: 200,
-        y: 250,
         parents: ["bananaBoost1"],
         unlockRequirements: [
             (player) => player.getSkillById("bananaBoost1")?.level >= 2
@@ -54,8 +67,6 @@ const skillTreeData = [
         description: "???",
         category: "rare",
         maxLevel: 1,
-        x: 400,
-        y: 250,
         parents: ["bananaBoost2"],
         unlockRequirements: [
             (player) => player.getSkillById("bananaBoost2")?.level >= 2

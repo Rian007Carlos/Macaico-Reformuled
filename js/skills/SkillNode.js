@@ -8,9 +8,8 @@ export class SkillNode {
         level = 0,
         maxLevel = 1,
         unlockRequirements = [], // array de funções de checagem
-        effect = null, // função que aplica efeito
-        x = 0, // coordenada horizontal na skill tree
-        y = 0, // coordenada vertical na skill tree
+        effect = null,
+        targetMonkey = null,// função que aplica efeito
         parents = [] // array de IDs dos nós pais
     }) {
         this.id = id;
@@ -22,9 +21,7 @@ export class SkillNode {
         this.maxLevel = maxLevel;
         this.unlockRequirements = unlockRequirements;
         this.effect = effect;
-
-        this.x = x;
-        this.y = y;
+        this.targetMonkey = targetMonkey
         this.parents = parents; // IDs de nós que desbloqueiam este
     }
 
@@ -32,22 +29,22 @@ export class SkillNode {
         return this.unlockRequirements.every(fn => fn(player));
     }
 
-    unlock(player) {
+    unlock(player, extra = null) {
         if (!this.unlocked && this.canUnlock(player)) {
             this.unlocked = true;
             this.level = 1;
-            if (this.effect) this.effect(player, this.level);
+            if (this.effect) this.effect(player, this.level, extra);
             return true;
         }
         return false;
     }
 
-    upgrade(player) {
+    upgrade(player, extra = null) {
         if (!this.unlocked) return false;
         if (this.level >= this.maxLevel) return false;
 
         this.level++;
-        if (this.effect) this.effect(player, this.level);
+        if (this.effect) this.effect(player, this.level, extra);
         return true;
     }
 
