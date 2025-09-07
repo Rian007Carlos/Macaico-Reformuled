@@ -13,7 +13,7 @@ export function createMonkeySkillNodes(player) {
             category: "monkeys",
             level: 0,
             maxLevel: 100,
-            targetMonkey: monkey,
+            targetMonkey: monkey.name,
             baseCost: monkey.skillTreeBaseCost || 25,
 
             // custo polinomial baseado no nível do nó
@@ -49,7 +49,16 @@ export function createMonkeySkillNodes(player) {
             },
 
             effect: (player, level) => {
-                monkey.multiplier = 1 + 0.01 * level;
+                const monkeyObj = player.upgrades.find(m => m.name === monkey.name);
+                if (!monkeyObj) return;
+
+                monkeyObj.multiplier = 1 + 0.1 * level;
+                player.recalculateBPS();
+
+                if (player.uiManager) {
+                    player.uiManager.updateMonkeyDescription(monkeyObj);
+                    player.uiManager.updateAll(player);
+                }
             }
         });
 

@@ -51,25 +51,26 @@ export class Player {
     recalculateBPS() {
         let bps = 0;
 
-        // Se upgrades existir e não estiver vazio, usa ele.
-        // Se não, por segurança, cai em this.deck(compatibilidade).
-        const source = (this.upgrades && this.upgrades.length) ? this.upgrades : this.deck;
-
-        source.forEach(monkey => {
-            // soma apenas macacos que reamlente produzem
-            if (monkey && monkey.unlocked && monkey.level > 0 && typeof monkey.getProduction == "function") {
+        this.upgrades.forEach(monkey => {
+            if (monkey.unlocked && monkey.level > 0 && typeof monkey.getProduction === "function") {
                 bps += monkey.getProduction();
             }
         });
 
         if (this.mine?.unlocked) {
-            const mineProduction = (this.mine.production || 0) * (this.mine.level || 0);
+            const mineProduction = (this.mine.production || 0) * (this.mine.level || 0) * (this.mine.multiplier || 1);
+            bps += mineProduction;
         }
 
-        // segurança contra Nan/Infinity
+        bps *= this.productionMultiplier || 1;
+
         if (!isFinite(bps) || isNaN(bps)) bps = 0;
 
         this.bananasPerSecond = bps;
+
+        // Atualiza HUD
+        this.refreshHUD();
+
     }
 
     addSkillNode(skillNode) {

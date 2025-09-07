@@ -15,11 +15,11 @@ const skillTreeData = [
         targetMonkey: monkey,
         effect: (player, level, monkey) => {
             if (!monkey) return;
-
-            monkey.multiplier = 1 + 0.01 * level;
+            if (monkey) {
+                monkey.multiplier = 1 + 0.1 * level;
+            }
 
             player.recalculateBPS();
-            player.refreshHUD();
         }
     })),
     {
@@ -31,7 +31,7 @@ const skillTreeData = [
         unlocked: true,
         parents: [],
         effect: (player, level) => {
-            player.bananasPerSecond += player.bananasPerSecond * (1 + 2 * level);
+            player.bananasPerSecond += player.bananasPerSecond * (1 + 0.01 * level);
         }
     },
     {
@@ -45,7 +45,7 @@ const skillTreeData = [
             (player) => player.getSkillById("bananaBoost1")?.level >= 3
         ],
         effect: (player, level) => {
-            player.bananasPerSecond += player.bananasPerSecond * (1 + 0.2 * level);
+            player.bananasPerSecond += player.bananasPerSecond * (1 + 0.02 * level);
         }
     },
     {

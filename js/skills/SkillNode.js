@@ -1,3 +1,5 @@
+import { UIManager } from "../uiManager.js";
+
 export class SkillNode {
     constructor({
         id,
@@ -45,12 +47,20 @@ export class SkillNode {
         return false;
     }
 
-    upgrade(player, extra = null) {
+    upgrade(player, uiManager, extra = null) {
         if (!this.unlocked) return false;
         if (this.level >= this.maxLevel) return false;
 
         this.level++;
         if (this.effect) this.effect(player, this.level, extra);
+        player.recalculateBPS();
+
+        if (uiManager && this.targetMonkey) {
+            const monkey = player.upgrades.find(monkey => monkey.name === this.targetMonkey);
+            if (monkey) uiManager.updateMonkeyDescription(monkey);
+
+            uiManager.updateAll(player);
+        }
         return true;
     }
 
