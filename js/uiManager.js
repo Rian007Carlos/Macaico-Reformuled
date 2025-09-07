@@ -107,7 +107,7 @@ export class UIManager {
         description.classList.add('description');
         description.textContent = `Nome: ${monkey.name}
         Custo: ${formatNumber(monkey.cost)} 
-        Level: ${monkey.level} | Produção: ${monkey.getProduction()} bananas/s `;
+        Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())} bananas/s `;
         monkeyEl.appendChild(buyBtn);
 
         buyBtn.textContent = "Comprar";
@@ -142,7 +142,7 @@ export class UIManager {
             const description = monkeyEl.querySelector('.description');
             if (description) {
                 description.textContent = `Nome: ${monkey.name} | 
-                Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${monkey.getProduction()}  bananas/s `;
+                Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())}  bananas/s `;
             }
         }
     }
