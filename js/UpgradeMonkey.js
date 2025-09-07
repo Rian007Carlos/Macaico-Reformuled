@@ -1,7 +1,7 @@
 import { Mine } from "./Mine.js";
 
 export class UpgradeMonkey {
-    constructor({ name, cost, baseProduction, unlockAt = {}, unlocksFeature = null, multiplier = 1, costExponent = 1.15 }) {
+    constructor({ name, cost, baseProduction, unlockAt = {}, unlocksFeature = null, multiplier = 1, costExponent = 1.15, skillTreeBaseCost }) {
         this.name = name;
         this.baseCost = cost;
         this.cost = cost;
@@ -14,6 +14,7 @@ export class UpgradeMonkey {
         this.isProducing = false;
         this.costExponent = costExponent;
         this.intervalID = null;
+        this.skillTreeBaseCost = skillTreeBaseCost;
     }
 
     getProduction() {

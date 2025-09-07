@@ -8,10 +8,12 @@ export class SkillNode {
         level = 0,
         maxLevel = 1,
         unlockRequirements = [], // array de funções de checagem
-        effect = null,
-        getCost = null,
+        effect,
+        getCost,
+        baseCost = 25,
         targetMonkey = null,// função que aplica efeito
-        parents = [] // array de IDs dos nós pais
+        parents = [], // array de IDs dos nós pais
+        ...rest
     }) {
         this.id = id;
         this.name = name;
@@ -23,8 +25,10 @@ export class SkillNode {
         this.unlockRequirements = unlockRequirements;
         this.effect = effect;
         this.getCost = getCost;
+        this.baseCost = baseCost;
         this.targetMonkey = targetMonkey
         this.parents = parents; // IDs de nós que desbloqueiam este
+        Object.assign(this, rest);
     }
 
     canUnlock(player) {
