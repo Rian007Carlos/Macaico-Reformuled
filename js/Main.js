@@ -8,6 +8,7 @@ import { SkillNode } from './skills/SkillNode.js';
 // === Instâncias principais ===
 const player = new Player(null);
 createSkillTree(player);
+
 const upgrades = [...upgradeMonkeys];
 const buildings = [
     { name: 'mine', unlocked: player.mine.unlocked },
@@ -49,6 +50,7 @@ ui.showReloadWarning();
 
 
 initGame();
+ui.startGameLoop();
 
 setInterval(() => {
     GameState.save(player, upgrades, buildings);

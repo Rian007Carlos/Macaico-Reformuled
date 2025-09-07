@@ -84,6 +84,18 @@ export class UIManager {
         }
     }
 
+    updateBananasFromMonkeys() {
+        let total = 0;
+
+        this.elements.upgrades.forEach(monkey => {
+            if (monkey.unlocked) {
+                total += monkey.getProduction(); // pode multiplicar por tickRate se for fracionado
+            }
+        });
+
+        this.player.addBananas(total);
+    }
+
     // Atualiza ou renderiza todos os upgrades desbloqueados
     checkAllUnlocks() {
         this.elements.upgrades.forEach(monkey => {
@@ -286,6 +298,14 @@ export class UIManager {
         warning.style.fontWeight = 'bold';
         warning.style.marginBottom = '10px';
         document.body.prepend(warning);
+    }
+
+    startGameLoop() {
+        const tickRate = 1000; // 1 segundo por tick
+        setInterval(() => {
+            this.updateBananasFromMonkeys();
+            this.updateAll(); // atualiza HUD
+        }, tickRate);
     }
 
 }

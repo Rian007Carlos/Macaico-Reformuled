@@ -50,12 +50,10 @@ export class UpgradeMonkey {
     startProduction(player, uiManager) {
         if (this.level > 0 && !this.isProducing) {
             this.isProducing = true;
-            this.intervalID = setInterval(() => {
-                player.addBananas(this.getProduction());
-            }, 1000);
             player.bananasPerSecond += this.getProduction();
 
             if (uiManager) {
+                uiManager.up
                 player.recalculateBPS();
                 uiManager.updateAll(player);
             }
