@@ -1,5 +1,7 @@
 import { formatNumber } from './utils.js';
 import { GameState } from './GameState.js';
+import { Player } from './player.js';
+import { Mine } from './Mine.js';
 
 export class UIManager {
     constructor(player, config) {
@@ -11,81 +13,16 @@ export class UIManager {
         this.ClickOnBanana();
     }
 
-    initUI() {
-
-        this.clearMonkeys();             // limpa o container
-        this.elements.upgrades.forEach(monkey => {
-            if (monkey.unlocked) {
-                this.renderMonkey(monkey);
-            }
-        });
-        // Atualiza HUD
-        this.updateAll();
-
-        // Renderiza upgrades desbloqueados
-        this.checkAllUnlocks();
-
-        this.renderAllUnlockedMonkeys();
-        this.updateBananasPerSec();
-    }
-
     ClickOnBanana() {
         if (this.elements.bananaButton) {
             this.elements.bananaButton.addEventListener('click', () => {
                 this.player.addBananas(1);
-                this.updateBananas();
+
                 this.checkAllUnlocks();
 
             });
         }
 
-    }
-
-    showReloadWarning() {
-        const warning = document.createElement('div');
-        warning.textContent = "⚠️ NÃO RECARREGUE A PÁGINA! O jogo salva automaticamente.";
-        warning.style.color = 'red';
-        warning.style.fontWeight = 'bold';
-        warning.style.marginBottom = '10px';
-        document.body.prepend(warning);
-    }
-
-    // SAVE / LOAD / RESET
-    GameStateEvents() {
-
-
-
-        // Botão de carregar
-        if (this.elements.loadButton) {
-            this.elements.loadButton.addEventListener('click', () => {
-                GameState.load(this.player, this.elements.upgrades, this.elements.buildings);
-                this.checkAllUnlocks(); // garante que os macacos desbloqueados apareçam
-                this.renderAllUnlockedMonkeys();
-                this.updateBananasPerSec();
-                this.updateAll();        // atualiza HUD
-            });
-        }
-
-        // Botão de salvar
-        if (this.elements.saveButton) {
-            this.elements.saveButton.addEventListener('click', () => {
-                GameState.save(this.player, this.elements.upgrades, this.elements.buildings);
-            });
-        }
-
-        // Botão de resetar
-
-        if (this.elements.resetButton) {
-            this.elements.resetButton.addEventListener('click', () => {
-                GameState.reset(this.player, this.elements.upgrades, this.elements.buildings, this);
-                this.clearMonkeys();
-                this.clearBuildings();
-                this.checkAllUnlocks();
-                this.renderAllUnlockedMonkeys();
-                this.updateAll();
-
-            });
-        }
     }
 
     renderMonkey(monkey) {
@@ -150,7 +87,7 @@ export class UIManager {
     // Atualiza ou renderiza todos os upgrades desbloqueados
     checkAllUnlocks() {
         this.elements.upgrades.forEach(monkey => {
-            const unlocked = monkey.checkUnlock({
+            const unlocked = monkey.hasUnlock({
                 player: this.player,
                 upgrades: this.elements.upgrades,
                 uiManager: this
@@ -168,6 +105,7 @@ export class UIManager {
             this.renderMine();
         }
 
+
         if (this.player.laboratory?.unlocked) {
             this.renderLaboratory();
         }
@@ -177,37 +115,27 @@ export class UIManager {
         }
     }
 
-
-    updateBananas() {
-        if (this.elements.bananaCount) {
-            this.elements.bananaCount.textContent = formatNumber(this.player.bananas);
+    updateHUDCounter(counterElement, amount) {
+        if (counterElement) {
+            counterElement.textContent = formatNumber(amount);
         }
     }
 
-    updatePrismatics() {
-        if (this.elements.prismaticCount) {
-            this.elements.prismaticCount.textContent = formatNumber(this.player.prismatics);
-        }
+    updateAll(player = this.player) {
+        this.updateBananaDisplay(player.bananas);
+        this.updatePrismaticDisplay(player.prismatics);
+        this.updateBananasPerSecondDisplay(player.bananasPerSecond);
     }
 
-    updateBananasPerSec() {
-        if (this.elements.bananasPerSec) {
-            const totalBPS = this.elements.upgrades.reduce((sum, monkey) => {
-                return sum + (monkey.unlocked ? monkey.getProduction() : 0);
-            }, 0);
-
-            this.player.bananasPerSecond = totalBPS;
-            this.elements.bananasPerSec.textContent = formatNumber(totalBPS);
-        }
-
+    updateBananaDisplay(amount) {
+        if (this.elements.bananaCount) this.elements.bananaCount.textContent = formatNumber(amount);
     }
-
-    updateAll() {
-        this.updateBananas();
-        this.updatePrismatics();
-        this.updateBananasPerSec();
+    updatePrismaticDisplay(amount) {
+        if (this.elements.prismaticsCount) this.elements.prismaticsCount.textContent = formatNumber(amount);
     }
-
+    updateBananasPerSecondDisplay(amount) {
+        if (this.elements.bananasPerSecond) this.elements.bananasPerSecond.textContent = formatNumber(amount);
+    }
     // Renderiza a Mina
     // Dentro da classe UIManager
     renderMine() {
@@ -227,7 +155,7 @@ export class UIManager {
             const mininingButton = document.createElement('button');
             mininingButton.textContent = "Mineirar";
             mininingButton.addEventListener('click', () => {
-                if (this.player.upgradeMine()) {
+                if (Mine.upgrade()) {
                     this.updateMineUI();
                 }
             });
@@ -251,4 +179,104 @@ export class UIManager {
             container.innerHTML = '';
         }
     }
+
+    renderSkillTree() {
+        const container = document.getElementById("skills-container");
+        if (!container) return;
+        container.innerHTML = '';
+
+
+        this.player.skillCategories.forEach(category => {
+            const catDiv = document.createElement("div");
+            catDiv.classList.add("skill-category");
+            catDiv.textContent = category.toUpperCase();
+
+            this.player.skills
+                .filter(skill => skill.category === category)
+                .forEach(skill => {
+                    const skillEl = document.createElement("div");
+                    skillEl.classList.add("skill-node");
+                    skillEl.textContent = `${skill.unlocked ? skill.name : "???"} - Lv ${skill.level}/${skill.maxLevel}`;
+
+                    const btn = document.createElement("button");
+                    btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
+
+                    btn.addEventListener("click", () => {
+                        if (!skill.unlocked) skill.unlock(this.player);
+                        else skill.upgrade(this.player);
+
+                        this.renderSkillTree();
+                        this.updateAll();
+                    });
+
+                    skillEl.appendChild(btn);
+                    catDiv.appendChild(skillEl);
+                });
+
+            container.appendChild(catDiv);
+        });
+    }
+
+
+
+    // SAVE / LOAD / RESET
+    GameStateEvents() {
+
+
+        // Botão de carregar
+        if (this.elements.loadButton) {
+            this.elements.loadButton.addEventListener('click', () => {
+                GameState.load(this.player, this.elements.upgrades, this.elements.buildings);
+                this.checkAllUnlocks(); // garante que os macacos desbloqueados apareçam
+                this.renderAllUnlockedMonkeys();
+                this.updateAll();        // atualiza HUD
+            });
+        }
+
+        // Botão de salvar
+        if (this.elements.saveButton) {
+            this.elements.saveButton.addEventListener('click', () => {
+                GameState.save(this.player, this.elements.upgrades, this.elements.buildings);
+            });
+        }
+
+        // Botão de resetar
+
+        if (this.elements.resetButton) {
+            this.elements.resetButton.addEventListener('click', () => {
+                GameState.reset(this.player, this.elements.upgrades, this.elements.buildings, this);
+                this.clearMonkeys();
+                this.clearBuildings();
+                this.checkAllUnlocks();
+                this.renderAllUnlockedMonkeys();
+
+
+            });
+        }
+    }
+
+    initUI() {
+
+        this.clearMonkeys();             // limpa o container
+        this.elements.upgrades.forEach(monkey => {
+            if (monkey.unlocked) {
+                this.renderMonkey(monkey);
+            }
+        });
+        // Atualiza HUD
+
+        this.checkAllUnlocks();
+        this.renderAllUnlockedMonkeys();
+    }
+
+
+    showReloadWarning() {
+        const warning = document.createElement('div');
+        warning.textContent = "⚠️ NÃO RECARREGUE A PÁGINA! O jogo salva automaticamente.";
+        warning.style.color = 'red';
+        warning.style.fontWeight = 'bold';
+        warning.style.marginBottom = '10px';
+        document.body.prepend(warning);
+    }
+
 }

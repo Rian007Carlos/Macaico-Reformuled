@@ -2,9 +2,12 @@ import { GameState } from './GameState.js';
 import { Player } from './player.js';
 import { UIManager } from './uiManager.js';
 import { upgradeMonkeys } from './Monkey.js';
+import { createSkillTree } from './skills/SkillTree.js';
+import { SkillNode } from './skills/SkillNode.js';
 
 // === Instâncias principais ===
-const player = new Player();
+const player = new Player(null);
+createSkillTree(player);
 const upgrades = [...upgradeMonkeys];
 const buildings = [
     { name: 'mine', unlocked: player.mine.unlocked },
@@ -26,13 +29,15 @@ const ui = new UIManager(player, {
 
 });
 
+player.uiManager = ui;
+ui.renderSkillTree();
+
 // carrega estado salvo
 function initGame() {
     GameState.load(player, upgrades, buildings, ui);
     ui.renderAllUnlockedMonkeys();
     ui.checkAllUnlocks();
     ui.updateAll();
-    ui.updateBananasPerSec();
 
     if (player.mine.unlocked) {
         ui.renderMine();

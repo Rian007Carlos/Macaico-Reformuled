@@ -21,9 +21,17 @@
             box-sizing: content-box;
         }
 
+        #game {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
         #hud {
             display: flex;
             flex-direction: column;
+            align-items: center;
             width: 50%;
             gap: 20px;
             border-radius: 6px;
@@ -52,6 +60,9 @@
         }
 
         #buildings {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-top: 20px;
         }
 
@@ -94,6 +105,45 @@
             display: flex;
             flex-direction: column;
         }
+
+        .skillTree-container {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .skillTree-container #skills-container {
+            width: 60%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .skill-category {
+            color: white;
+            background-color: #222;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 8px;
+            min-width: 200px;
+            flex: 1;
+        }
+
+        .skill-node {
+            background-color: #625515;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .skill-node button {
+            margin-left: 10px;
+        }
+
 
         @media(max-width: 768px) {
             body {
@@ -141,37 +191,46 @@
 
 <body>
 
+    <div id="game">
 
-    <h1>🐒 Macaicos Clicker</h1>
-    <!-- HUD -->
-    <div id="hud">
-        <!-- Botões de controle -->
-        <div class="game-state">
-            <button id="save-button">Salvar</button>
-            <button id="load-button">📂 Carregar</button>
-            <button id="reset-button">Resetar</button>
+
+        <h1>🐒 Macaicos Clicker</h1>
+        <!-- HUD -->
+        <div id="hud">
+            <!-- Botões de controle -->
+            <div class="game-state">
+                <button id="save-button">Salvar</button>
+                <button id="load-button">📂 Carregar</button>
+                <button id="reset-button">Resetar</button>
+            </div>
+            <div class="counters">
+                <div>Bananas: <span id="banana-count">0</span></div>
+                <div>Prismatics: <span id="prismatics-count">0</span></div>
+                <div>Bananas/s: <span id="bananas-per-second">0</span></div>
+            </div>
         </div>
-        <div class="counters">
-            <div>Bananas: <span id="banana-count">0</span></div>
-            <div>Prismatics: <span id="prismatics-count">0</span></div>
-            <div>Bananas/s: <span id="bananas-per-second">0</span></div>
+
+        <!-- Botão principal -->
+        <button id="banana-button">🍌 +1 Banana</button>
+
+
+
+        <!-- Container dos upgrades -->
+        <h2>Upgrades (Macaicos)</h2>
+        <div id="upgrades-container"></div>
+
+        <!-- Construções -->
+        <div id="buildings">
+            <h2>Construções</h2>
+            <!-- Mina -->
+            <div id="buildings-container"></div>
         </div>
-    </div>
 
-    <!-- Botão principal -->
-    <button id="banana-button">🍌 +1 Banana</button>
-
-
-
-    <!-- Container dos upgrades -->
-    <h2>Upgrades (Macaicos)</h2>
-    <div id="upgrades-container"></div>
-
-    <!-- Construções -->
-    <div id="buildings">
-        <h2>Construções</h2>
-        <!-- Mina -->
-        <div id="buildings-container"></div>
+        <div class="skillTree-container">
+            <h2>Skill Tree</h2>
+            <div id="skills-container">
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->

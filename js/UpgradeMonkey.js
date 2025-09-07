@@ -1,3 +1,5 @@
+import { Mine } from "./Mine.js";
+
 export class UpgradeMonkey {
     constructor({ name, cost, baseProduction, unlockAt = {}, unlocksFeature = null, multiplier = 1, costExponent = 1.15 }) {
         this.name = name;
@@ -19,7 +21,7 @@ export class UpgradeMonkey {
     }
 
     // Apenas desbloqueia, não adiciona bananas
-    checkUnlock(gameState) {
+    hasUnlock(gameState) {
         if (this.unlocked) return false;
 
         let unlockedNow = false;
@@ -51,9 +53,11 @@ export class UpgradeMonkey {
             this.intervalID = setInterval(() => {
                 player.addBananas(this.getProduction());
             }, 1000);
+            player.bananasPerSecond += this.getProduction();
 
             if (uiManager) {
-                uiManager.updateBananasPerSec();
+                player.recalculateBPS();
+                uiManager.updateAll(player);
             }
         }
     }
@@ -66,12 +70,13 @@ export class UpgradeMonkey {
 
         if (uiManager) {
             uiManager.updateMonkeyDescription(this);
-            uiManager.updateBananasPerSec();
-
+            uiManager.updateAll(player);
             // Desbloqueio da mina ao comprar o primeiro Macaco-prego
             if (this.name === "Macaco-prego" && this.level === 1) {
-                if (player.unlockMine()) {
+                if (Mine.unlock(player.mine)) {
                     uiManager.renderMine();
+                    player.recalculateBPS();
+                    uiManager.updateAll(player);
                 }
             }
         }
