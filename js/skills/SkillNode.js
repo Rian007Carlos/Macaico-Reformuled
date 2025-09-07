@@ -8,7 +8,10 @@ export class SkillNode {
         level = 0,
         maxLevel = 1,
         unlockRequirements = [], // array de funções de checagem
-        effect = null // função que aplica efeito
+        effect = null, // função que aplica efeito
+        x = 0, // coordenada horizontal na skill tree
+        y = 0, // coordenada vertical na skill tree
+        parents = [] // array de IDs dos nós pais
     }) {
         this.id = id;
         this.name = name;
@@ -19,10 +22,13 @@ export class SkillNode {
         this.maxLevel = maxLevel;
         this.unlockRequirements = unlockRequirements;
         this.effect = effect;
+
+        this.x = x;
+        this.y = y;
+        this.parents = parents; // IDs de nós que desbloqueiam este
     }
 
     canUnlock(player) {
-        // Todos os requisitos devem passar
         return this.unlockRequirements.every(fn => fn(player));
     }
 
@@ -45,7 +51,6 @@ export class SkillNode {
         return true;
     }
 
-    // Método para aumentar maxLevel dinamicamente (ex: unlock de outro nó)
     increaseMaxLevel(amount = 1) {
         this.maxLevel += amount;
     }

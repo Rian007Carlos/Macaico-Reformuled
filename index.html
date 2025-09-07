@@ -106,19 +106,16 @@
             flex-direction: column;
         }
 
-        .skillTree-container {
-            display: flex;
-            align-items: center;
-            flex-direction: column;
+        .skill-tree-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ccc;
+            margin: 20px auto;
+            background-color: #ffa500;
+            border-radius: 2em;
         }
 
-        .skillTree-container #skills-container {
-            width: 60%;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 10px;
-        }
 
         .skill-category {
             color: white;
@@ -131,14 +128,20 @@
         }
 
         .skill-node {
-            background-color: #625515;
-            margin: 5px 0;
-            padding: 8px;
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background-color: #f4f4f4;
+            border: 1px solid #888;
             border-radius: 5px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
         }
+
 
         .skill-node button {
             margin-left: 10px;
@@ -226,8 +229,9 @@
             <div id="buildings-container"></div>
         </div>
 
-        <div class="skillTree-container">
+        <div id="skill-tree-container" class="skill-tree-container">
             <h2>Skill Tree</h2>
+            <svg id="skill-tree-lines" class="skill-tree-lines"></svg>
             <div id="skills-container">
             </div>
         </div>

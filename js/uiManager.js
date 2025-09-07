@@ -182,15 +182,14 @@ export class UIManager {
 
     renderSkillTree() {
         const container = document.getElementById("skills-container");
-        if (!container) return;
         container.innerHTML = '';
 
-
+        // Para cada categoria
         this.player.skillCategories.forEach(category => {
-            const catDiv = document.createElement("div");
-            catDiv.classList.add("skill-category");
-            catDiv.textContent = category.toUpperCase();
 
+
+
+            // Filtra skills da categoria
             this.player.skills
                 .filter(skill => skill.category === category)
                 .forEach(skill => {
@@ -205,8 +204,8 @@ export class UIManager {
                         if (!skill.unlocked) skill.unlock(this.player);
                         else skill.upgrade(this.player);
 
-                        this.renderSkillTree();
-                        this.updateAll();
+                        this.renderSkillTree(); // re-renderiza após alteração
+                        this.updateAll();       // atualiza HUD
                     });
 
                     skillEl.appendChild(btn);
@@ -216,7 +215,6 @@ export class UIManager {
             container.appendChild(catDiv);
         });
     }
-
 
 
     // SAVE / LOAD / RESET
