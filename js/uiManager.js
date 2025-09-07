@@ -217,17 +217,22 @@ export class UIManager {
                 .filter(skill => skill.category === category)
                 .forEach(skill => {
                     const skillEl = document.createElement("div");
-                    skillEl.classList.add("skill-node");
+                    const levelEl = document.createElement("span");
                     const nameEl = document.createElement("span");
+                    const descriptionEl = document.createElement("p");
+
+                    skillEl.classList.add("skill-node");
                     nameEl.classList.add("skill-name");
                     nameEl.textContent = skill.unlocked ? skill.name : "???";
+                    descriptionEl.textContent = skill.unlocked ? skill.description : "???";
 
-                    const levelEl = document.createElement("span");
                     levelEl.classList.add("skill-level");
                     levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
 
+
                     skillEl.appendChild(nameEl);
                     skillEl.appendChild(levelEl);
+                    skillEl.appendChild(descriptionEl);
 
                     // Se tiver custo
                     if (skill.getCost) {

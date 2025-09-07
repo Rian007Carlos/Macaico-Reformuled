@@ -26,6 +26,8 @@ export function createMonkeySkillNodes(player) {
             }
         });
 
+        node.unlocked = monkey.unlocked;
+
         player.addSkillNode(node);
     });
 }

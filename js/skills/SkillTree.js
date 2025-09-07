@@ -25,27 +25,27 @@ const skillTreeData = [
     {
         id: "bananaBoost1",
         name: "Banana Boost I",
-        description: "Aumenta a produção de bananas em 10%",
+        description: "Aumenta a produção de bananas em 10% por nível.",
         category: "bananas",
-        maxLevel: 3,
+        maxLevel: 10,
         unlocked: true,
         parents: [],
         effect: (player, level) => {
-            player.bananasPerSecond = player.bananasPerSecond * (1 + 10.1 * level);
+            player.bananasPerSecond += player.bananasPerSecond * (1 + 10.1 * level);
         }
     },
     {
         id: "bananaBoost2",
         name: "Banana Boost II",
-        description: "Aumenta a produção de bananas em +20%",
+        description: "Aumenta a produção de bananas em +20% por nível.",
         category: "bananas",
-        maxLevel: 2,
+        maxLevel: 10,
         parents: ["bananaBoost1"],
         unlockRequirements: [
             (player) => player.getSkillById("bananaBoost1")?.level >= 3
         ],
         effect: (player, level) => {
-            player.bananasPerSecond = player.bananasPerSecond * (1 + 0.2 * level);
+            player.bananasPerSecond += player.bananasPerSecond * (1 + 0.2 * level);
         }
     },
     {
@@ -53,7 +53,7 @@ const skillTreeData = [
         name: "Mine Efficiency",
         description: "Aumenta produção da mina",
         category: "mine",
-        maxLevel: 2,
+        maxLevel: 5,
         parents: ["bananaBoost1"],
         unlockRequirements: [
             (player) => player.getSkillById("bananaBoost1")?.level >= 2
