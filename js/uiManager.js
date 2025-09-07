@@ -218,7 +218,24 @@ export class UIManager {
                 .forEach(skill => {
                     const skillEl = document.createElement("div");
                     skillEl.classList.add("skill-node");
-                    skillEl.textContent = `${skill.unlocked ? skill.name : "???"} - Lv ${skill.level}/${skill.maxLevel}`;
+                    const nameEl = document.createElement("span");
+                    nameEl.classList.add("skill-name");
+                    nameEl.textContent = skill.unlocked ? skill.name : "???";
+
+                    const levelEl = document.createElement("span");
+                    levelEl.classList.add("skill-level");
+                    levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
+
+                    skillEl.appendChild(nameEl);
+                    skillEl.appendChild(levelEl);
+
+                    // Se tiver custo
+                    if (skill.getCost) {
+                        const costEl = document.createElement("span");
+                        costEl.classList.add("skill-cost");
+                        costEl.textContent = `Custo: ${skill.getCost(skill.level)} bananas`;
+                        skillEl.appendChild(costEl);
+                    }
 
                     const btn = document.createElement("button");
                     btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";

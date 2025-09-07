@@ -1,6 +1,7 @@
 import { SkillNode } from "./SkillNode.js";
 import { Player } from "../player.js";
 import { upgradeMonkeys } from "../Monkey.js";
+import { createMonkeySkillNodes } from "./MonkeySkillNodes.js";
 
 // Skill tree dinâmica com coordenadas e pais
 const skillTreeData = [
@@ -82,6 +83,8 @@ export function createSkillTree(player) {
     skillTreeData.forEach(data => {
         player.addSkillNode(new SkillNode(data));
     });
+
+    createMonkeySkillNodes(player);
 }
 
 // Renderiza a skill tree com SVG
