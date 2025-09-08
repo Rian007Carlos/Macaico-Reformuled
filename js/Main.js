@@ -4,6 +4,7 @@ import { UIManager } from './uiManager.js';
 import { upgradeMonkeys } from './Monkey.js';
 import { createSkillTree } from './skills/SkillTree.js';
 import { SkillNode } from './skills/SkillNode.js';
+import { bgmManager } from './sfx/bgmManager.js';
 
 // === Instâncias principais ===
 const player = new Player(null);
@@ -47,12 +48,18 @@ function initGame() {
 }
 
 
-ui.showReloadWarning();
+// ui.showReloadWarning();
+ui.renderPlaylist();
+
+bgmManager.onTrackChange = (trackName) => {
+    const currentMusic = document.getElementById("current-music");
+    if (currentMusic) currentMusic.textContent = trackName || "Nenhuma música";
+    ui.updatePlaylistUI(); // atualiza também botão play/pause
+};
 
 
 initGame();
 ui.startGameLoop();
-console.log(player.skills.filter(s => s.name.includes("Macaco-prego")));
 
 setInterval(() => {
     GameState.save(player, upgrades, buildings);

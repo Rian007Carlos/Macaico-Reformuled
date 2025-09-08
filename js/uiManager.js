@@ -7,12 +7,13 @@ import { bgmManager } from './sfx/bgmManager.js';
 
 
 SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.5);
+SFX.register("denied", "../sfx/denied.m4a", 0.6);
 bgmManager.register("animal", new Audio("../music/animal-252993.mp3"));
-bgmManager.register("animal", new Audio("../music/as-cool-as-a-cucumber-236004.mp3"));
-bgmManager.register("animal", new Audio("../music/cheeky-monkey-392394.mp3"));
-bgmManager.register("animal", new Audio("../music/rain-drops-on-the-banana-leaves-south-china-folk-music-167331.mp3"));
+bgmManager.register("as cool as a cucumber", new Audio("../music/as-cool-as-a-cucumber-236004.mp3"));
+bgmManager.register("cheeky monkey", new Audio("../music/cheeky-monkey-392394.mp3"));
+bgmManager.register("rain drops on the banana leaves", new Audio("../music/rain-drops-on-the-banana-leaves-south-china-folk-music-167331.mp3"));
 
-// bgmManager.playBGM();
+bgmManager.playBGM();
 
 export class UIManager {
     constructor(player, config) {
@@ -22,6 +23,7 @@ export class UIManager {
         this.elements.buildings = config.buildings || [];
         this.GameStateEvents();
         this.ClickOnBanana();
+        this.playlistInterval = null;
     }
 
 
@@ -282,19 +284,87 @@ export class UIManager {
     renderPlaylist() {
         const playlistContainer = document.getElementById("playlist-container");
         const playlistActions = document.getElementById("playlist-actions");
-        const previousButton = document.createElement("button");
-        const playPauseButton = document.createElement("button");
-        const nextButton = document.createElement("button");
-        const currentMusic = document.createElement("span");
+        const progressContainer = document.getElementById("playlist-progress");
 
-        if (bgmManager) {
-            playlistContainer.prepend(currentMusic);
+        if (!playlistContainer || !playlistActions || !progressContainer) return;
+
+        // --- Nome da música (apenas se não existir) ---
+        let currentMusic = document.getElementById("current-music");
+        if (!currentMusic) {
+            currentMusic = document.createElement("span");
+            currentMusic.id = "current-music";
+            currentMusic.textContent = bgmManager.getCurrentTrackName() || "Nenhuma música";
+            playlistContainer.appendChild(currentMusic);
+        }
+
+        // --- Botões ---
+        if (!playlistActions.querySelector("button")) { // evita duplicar
+            const previousButton = document.createElement("button");
+            previousButton.textContent = "<<";
+            previousButton.onclick = () => { bgmManager.previous(); this.updatePlaylistUI(); };
+
+            const playPauseButton = document.createElement("button");
+            playPauseButton.textContent = bgmManager.isPlaying() ? "Pause" : "Play";
+            playPauseButton.onclick = () => {
+                if (bgmManager.isPlaying()) bgmManager.currentTrack.pause();
+                else bgmManager.currentTrack?.play() || bgmManager.playNext();
+                this.updatePlaylistUI();
+            };
+
+            const nextButton = document.createElement("button");
+            nextButton.textContent = ">>";
+            nextButton.onclick = () => { bgmManager.next(); this.updatePlaylistUI(); };
+
             playlistActions.appendChild(previousButton);
             playlistActions.appendChild(playPauseButton);
             playlistActions.appendChild(nextButton);
+
+            // slider volume
+            const volumeSlider = document.createElement("input");
+            volumeSlider.type = "range";
+            volumeSlider.min = 0;
+            volumeSlider.max = 1;
+            volumeSlider.step = 0.01;
+            volumeSlider.value = bgmManager.defaltVolume;
+            volumeSlider.oninput = e => bgmManager.setVolume(parseFloat(e.target.value));
+            playlistActions.appendChild(volumeSlider);
         }
 
+        // --- Barra de progresso ---
+        let progressBar = document.getElementById("bgm-progress");
+        if (!progressBar) {
+            progressBar = document.createElement("progress");
+            progressBar.id = "bgm-progress";
+            progressBar.max = 1;
+            progressBar.value = 0;
+            progressContainer.appendChild(progressBar);
+        }
+
+        // Atualiza barra a cada 200ms
+        clearInterval(this.playlistInterval);
+        this.playlistInterval = setInterval(() => {
+            if (bgmManager.currentTrack) {
+                progressBar.value = bgmManager.currentTrack.currentTime / bgmManager.currentTrack.duration || 0;
+                this.updatePlaylistUI(); // atualiza nome e botão play/pause
+            }
+        }, 200);
     }
+
+    // Atualiza nome e estado do play/pause sem recriar tudo
+    updatePlaylistUI() {
+        const currentMusic = document.getElementById("current-music");
+        const playPauseButton = document.querySelector("#playlist-actions button:nth-child(2)");
+        if (currentMusic) currentMusic.textContent = bgmManager.getCurrentTrackName() || "Nenhuma música";
+        if (playPauseButton) playPauseButton.textContent = bgmManager.isPlaying() ? "Pause" : "Play";
+
+        // verifica se precisa animar
+        if (currentMusic.scrollWidth > currentMusic.clientWidth) {
+            currentMusic.classList.add("scroll");
+        } else {
+            currentMusic.classList.remove("scroll");
+        }
+    }
+
 
 
     // SAVE / LOAD / RESET
@@ -342,10 +412,9 @@ export class UIManager {
             }
         });
         // Atualiza HUD
-
+        this.renderPlaylist();
         this.checkAllUnlocks();
         this.renderAllUnlockedMonkeys();
-        this.renderPlaylist();
     }
 
 
@@ -363,7 +432,7 @@ export class UIManager {
         setInterval(() => {
             this.updateBananasFromMonkeys();
             this.updateAll(); // atualiza HUD
-            this.renderPlaylist();
+
         }, tickRate);
     }
 

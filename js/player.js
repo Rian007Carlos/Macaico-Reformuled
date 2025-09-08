@@ -1,3 +1,6 @@
+import { SFX } from "./sfx/sfx.js";
+SFX.register("denied", "../sfx/denied.m4a", 0.6);
+
 // import { SkillNode } from "./skillNode";
 export class Player {
     constructor(uiManager) {
@@ -30,6 +33,8 @@ export class Player {
             this.bananas -= amount;
             this.refreshHUD();
             return true;
+        } else {
+            SFX.play("denied");
         }
         return false;
     }

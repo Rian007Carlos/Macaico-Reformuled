@@ -16,6 +16,11 @@
             align-items: center;
             max-width: 100vw;
             box-sizing: content-box;
+            background-image: url(bg/Jungle-bg.png);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+
         }
 
         h2 {
@@ -32,7 +37,116 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(6px);
+
         }
+
+        #playlist-container {
+            position: fixed;
+            top: 1em;
+            right: 10px;
+            display: flex;
+            gap: 1em;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #fff;
+            font-family: sans-serif;
+            z-index: 2;
+            width: 250px;
+            height: 8em;
+            box-sizing: border-box;
+        }
+
+        #playlist-container .track-name {
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+
+        #playlist-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 6px;
+            width: 100%;
+
+        }
+
+        #playlist-container input {
+
+            width: 100%;
+
+        }
+
+        #playlist-actions button {
+            background-color: #222;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        #playlist-actions button:hover {
+            background-color: #555;
+        }
+
+        #playlist-progress {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            height: 1em;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        #playlist-progress .progress-bar {
+            height: 100%;
+        }
+
+        #current-music-container {
+            position: relative;
+            max-width: 200px;
+            /* largura visível */
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        #current-music {
+            display: inline-block;
+            max-width: 200px;
+            /* limite do espaço */
+            white-space: nowrap;
+            /* overflow: hidden; */
+            vertical-align: middle;
+            position: relative;
+        }
+
+
+        #current-music.scroll {
+            animation: scroll-text 10s linear infinite;
+        }
+
+        @keyframes scroll-text {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+
 
         #hud {
             position: sticky;
@@ -68,13 +182,11 @@
         }
 
         #upgrades-container {
-            display: flex;
-            flex-wrap: wrap;
             place-self: flex-start;
             position: sticky;
             top: 8em;
             width: 33%;
-            justify-content: center;
+            justify-content: space-between;
             gap: 1em;
             height: 80vh;
             overflow: auto;
@@ -93,6 +205,7 @@
             border-radius: 6px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex-basis: 15%;
+            max-height: 200px;
         }
 
         #buildings {
@@ -202,6 +315,8 @@
         }
 
 
+
+
         @media(max-width: 768px) {
             body {
                 font-size: 1em;
@@ -250,7 +365,11 @@
 
     <div id="game">
         <div id="playlist-container">
+            <div id="current-music-container">
+                <div id="current-music"></div>
+            </div>
             <div id="playlist-actions"></div>
+            <div id="playlist-progress"></div>
         </div>
 
         <div class="game-state">
@@ -290,8 +409,6 @@
 
         </div>
 
-
-        <audio src="sfx/banana_splash.m4a" id="banana-splash"></audio>
     </div>
     </div>
 

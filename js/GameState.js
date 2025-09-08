@@ -60,10 +60,10 @@ export const GameState = {
         });
 
         // Renderiza prédios desbloqueados
-        if (player.mine.unlocked) ui.renderMine();
+        // if (player.mine.unlocked) ui.renderMine();
 
         // Atualiza HUD
-        ui.updateAll();
+        // ui.updateAll();
     },
 
     reset(player, upgrades, buildings, ui) {
