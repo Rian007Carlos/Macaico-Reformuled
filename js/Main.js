@@ -2,7 +2,7 @@ import { GameState } from './GameState.js';
 import { Player } from './player.js';
 import { UIManager } from './uiManager.js';
 import { upgradeMonkeys } from './Monkey.js';
-import { createSkillTree, renderSkillTreeSVG } from './skills/SkillTree.js';
+import { createSkillTree } from './skills/SkillTree.js';
 import { SkillNode } from './skills/SkillNode.js';
 
 // === Instâncias principais ===
@@ -52,8 +52,9 @@ ui.showReloadWarning();
 
 initGame();
 ui.startGameLoop();
+console.log(player.skills.filter(s => s.name.includes("Macaco-prego")));
 
 setInterval(() => {
     GameState.save(player, upgrades, buildings);
     console.log("Jogo salvo");
-}, 5000);
+}, 60000);

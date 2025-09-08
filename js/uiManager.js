@@ -105,6 +105,7 @@ export class UIManager {
                 uiManager: this
             });
 
+
             if (unlocked) {
                 this.renderMonkey(monkey);
             } else {
@@ -249,7 +250,7 @@ export class UIManager {
 
                     btn.addEventListener("click", () => {
                         if (!skill.unlocked) skill.unlock(this.player);
-                        else skill.upgrade(this.player);
+                        else skill.upgrade(this.player, this);
 
                         this.renderSkillTree();
                         this.updateAll();

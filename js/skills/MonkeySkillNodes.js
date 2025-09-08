@@ -13,7 +13,7 @@ export function createMonkeySkillNodes(player) {
             category: "monkeys",
             level: 0,
             maxLevel: 100,
-            targetMonkey: monkey.name,
+            targetMonkey: monkey,
             baseCost: monkey.skillTreeBaseCost || 25,
 
             // custo polinomial baseado no nível do nó
@@ -21,7 +21,7 @@ export function createMonkeySkillNodes(player) {
                 const base = this.baseCost || 25;
                 const nextLevel = level + 1;
                 const thresholds = [
-                    { level: 0, p: 2.2 },
+                    { level: 0, p: 1.2 },
                     { level: 11, p: 3.5 },
                     { level: 26, p: 4.2 },
                     { level: 51, p: 4.9 },
@@ -45,11 +45,12 @@ export function createMonkeySkillNodes(player) {
                 const p = currentThreshold.p + ((nextThreshold.p - currentThreshold.p) / levelIsInRange) * levelProgress;
 
 
-                return formatNumber(Math.floor(base * Math.pow(nextLevel, p)));
+                return Math.floor(base * Math.pow(nextLevel, p));
             },
 
             effect: (player, level) => {
                 const monkeyObj = player.upgrades.find(m => m.name === monkey.name);
+
                 if (!monkeyObj) return;
 
                 monkeyObj.multiplier = 1 + 0.1 * level;
@@ -60,9 +61,9 @@ export function createMonkeySkillNodes(player) {
                     player.uiManager.updateAll(player);
                 }
             }
-        });
 
-        node.unlocked = monkey.unlocked;
+
+        });
 
         player.addSkillNode(node);
 

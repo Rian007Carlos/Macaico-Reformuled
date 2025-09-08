@@ -5,23 +5,6 @@ import { createMonkeySkillNodes } from "./MonkeySkillNodes.js";
 
 // Skill tree dinâmica com coordenadas e pais
 const skillTreeData = [
-    upgradeMonkeys.map(monkey => ({
-        id: `skill_${monkey.name}`,
-        name: monkey.name,
-        description: `Aumenta a produção de ${monkey.name} em 1% por nível`,
-        category: "monkeys",
-        maxLevel: 100,
-        parents: [],
-        targetMonkey: monkey,
-        effect: (player, level, monkey) => {
-            if (!monkey) return;
-            if (monkey) {
-                monkey.multiplier = 1 + 0.1 * level;
-            }
-
-            player.recalculateBPS();
-        }
-    })),
     {
         id: "bananaBoost1",
         name: "Banana Boost I",
@@ -80,64 +63,12 @@ const skillTreeData = [
 
 // Criação automática
 export function createSkillTree(player) {
-    skillTreeData.forEach(data => {
-        player.addSkillNode(new SkillNode(data));
+    skillTreeData.forEach(skill => {
+        const node = new SkillNode(skill);
+        player.addSkillNode(node);
     });
 
     createMonkeySkillNodes(player);
 }
 
-// Renderiza a skill tree com SVG
-export function renderSkillTreeSVG(player, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
 
-    // Limpa o container
-    container.innerHTML = '';
-
-    // Cria o SVG
-    const svgNS = "http://www.w3.org/2000/svg";
-    const svg = document.createElementNS(svgNS, "svg");
-    svg.setAttribute("width", "100%");
-    svg.setAttribute("height", "100%");
-
-    // Desenha linhas entre nós (parents)
-    player.skills.forEach(node => {
-        node.parents.forEach(parentId => {
-            const parentNode = player.getSkillById(parentId);
-            if (parentNode) {
-                const line = document.createElementNS(svgNS, "line");
-                line.setAttribute("x1", parentNode.x);
-                line.setAttribute("y1", parentNode.y);
-                line.setAttribute("x2", node.x);
-                line.setAttribute("y2", node.y);
-                line.setAttribute("stroke", "#888");
-                line.setAttribute("stroke-width", "2");
-                svg.appendChild(line);
-            }
-        });
-    });
-
-    // Desenha os nós
-    player.skills.forEach(node => {
-        const circle = document.createElementNS(svgNS, "circle");
-        circle.setAttribute("cx", node.x);
-        circle.setAttribute("cy", node.y);
-        circle.setAttribute("r", 20);
-        circle.setAttribute("fill", node.unlocked ? "#ff0" : "#555");
-        circle.setAttribute("stroke", "#000");
-        circle.setAttribute("stroke-width", "2");
-        svg.appendChild(circle);
-
-        const text = document.createElementNS(svgNS, "text");
-        text.setAttribute("x", node.x);
-        text.setAttribute("y", node.y + 5);
-        text.setAttribute("text-anchor", "middle");
-        text.setAttribute("fill", "#000");
-        text.setAttribute("font-size", "10");
-        text.textContent = node.unlocked ? node.name : "???";
-        svg.appendChild(text);
-    });
-
-    container.appendChild(svg);
-}

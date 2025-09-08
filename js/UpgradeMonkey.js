@@ -23,6 +23,7 @@ export class UpgradeMonkey {
 
     // Apenas desbloqueia, não adiciona bananas
     hasUnlock(gameState) {
+
         if (this.unlocked) return false;
 
         let unlockedNow = false;
@@ -62,6 +63,7 @@ export class UpgradeMonkey {
     }
 
     buy(player, uiManager) {
+
         if (!player.spendBananas(this.cost)) return false;
 
         this.level++;

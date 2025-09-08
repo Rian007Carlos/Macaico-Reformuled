@@ -21,7 +21,7 @@ export class SkillNode {
         this.name = name;
         this.description = description;
         this.category = category;
-        this.unlocked = unlocked;
+        // this.unlocked = unlocked;
         this.level = level;
         this.maxLevel = maxLevel;
         this.unlockRequirements = unlockRequirements;
@@ -33,12 +33,18 @@ export class SkillNode {
         Object.assign(this, rest);
     }
 
+    get unlocked() {
+        return this.targetMonkey?.unlocked ?? false;
+    }
+
     canUnlock(player) {
         return this.unlockRequirements.every(fn => fn(player));
     }
 
     unlock(player, extra = null) {
         if (!this.unlocked && this.canUnlock(player)) {
+            const cost = this.getCost(this.level);
+            if (!player.spendBananas(cost)) return false;
             this.unlocked = true;
             this.level = 1;
             if (this.effect) this.effect(player, this.level, extra);
@@ -51,12 +57,15 @@ export class SkillNode {
         if (!this.unlocked) return false;
         if (this.level >= this.maxLevel) return false;
 
+        const cost = this.getCost(this.level);
+        if (!player.spendBananas(cost)) return false;
+
         this.level++;
         if (this.effect) this.effect(player, this.level, extra);
         player.recalculateBPS();
 
         if (uiManager && this.targetMonkey) {
-            const monkey = player.upgrades.find(monkey => monkey.name === this.targetMonkey);
+            const monkey = this.targetMonkey;
             if (monkey) uiManager.updateMonkeyDescription(monkey);
 
             uiManager.updateAll(player);
