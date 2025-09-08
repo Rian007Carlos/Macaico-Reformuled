@@ -74,11 +74,11 @@ export class UpgradeMonkey {
             uiManager.updateAll(player);
             // Desbloqueio da mina ao comprar o primeiro Macaco-prego
             if (this.name === "Macaco-prego" && this.level === 1) {
-                if (Mine.unlock(player.mine)) {
-                    uiManager.renderMine();
-                    player.recalculateBPS();
-                    uiManager.updateAll(player);
-                }
+                // if (Mine.unlock(player.mine)) {
+                //     uiManager.renderMine();
+                //     player.recalculateBPS();
+                //     uiManager.updateAll(player);
+                // }
             }
         }
 

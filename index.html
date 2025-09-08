@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macaicos Clicker</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Noto Sans", sans-serif;
             background: #5d3b57;
             margin: 0;
             display: flex;
@@ -20,6 +22,8 @@
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
+            max-height: 100vh;
+            /* overflow: hidden; */
 
         }
 
@@ -32,12 +36,13 @@
 
         #game {
             width: 100%;
-            /* height: 100vh; */
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(6px);
+            overflow: hidden;
 
         }
 
@@ -183,12 +188,12 @@
 
         #upgrades-container {
             place-self: flex-start;
-            position: sticky;
-            top: 8em;
+            position: fixed;
+            top: 16em;
             width: 33%;
             justify-content: space-between;
             gap: 1em;
-            height: 80vh;
+            height: 67vh;
             overflow: auto;
             padding: 8px;
 
@@ -231,8 +236,8 @@
 
         .building:hover,
         .monkey:hover {
-            background-color: #ffcc33;
-            color: rgb(0, 0, 0);
+            outline: 2px solid #ffa500;
+            color: rgb(255, 255, 255);
         }
 
         button {
@@ -262,11 +267,12 @@
             flex-wrap: wrap;
             justify-content: space-around;
             gap: 12px;
-            width: 65%;
+            width: 50%;
             align-self: flex-end;
-            max-height: 80vh;
+            max-height: 69vh;
             padding: 8px;
             overflow: auto;
+            font-size: 1em;
         }
 
         .skill-category {
@@ -277,7 +283,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            flex: 1 1 300px;
+            flex: 1 1 40%;
             overflow-y: auto;
             max-height: 400px;
 
@@ -303,7 +309,7 @@
             background-color: #eee;
             padding: 4px 6px;
             border-radius: 4px;
-            flex-basis: 120px;
+            /* flex-basis: 300px; */
         }
 
 
@@ -312,6 +318,24 @@
             margin: 0;
             font-size: 12px;
             cursor: pointer;
+        }
+
+        .denied {
+            animation: deniedFlash 0.3s ease;
+        }
+
+        @keyframes deniedFlash {
+            0% {
+                background-color: #ff4d4d;
+            }
+
+            50% {
+                background-color: #fff;
+            }
+
+            100% {
+                background-color: #ff4d4d;
+            }
         }
 
 
@@ -395,12 +419,12 @@
 
 
         <!-- Container dos upgrades -->
-        <h2>Upgrades (Macaicos)</h2>
+        <!-- <h2>Upgrades (Macaicos)</h2> -->
         <div id="upgrades-container"></div>
 
         <!-- Construções -->
         <div id="buildings">
-            <h2>Construções</h2>
+            <!-- <h2>Construções</h2> -->
             <!-- Mina -->
             <div id="buildings-container"></div>
         </div>

@@ -9,7 +9,7 @@ export function createMonkeySkillNodes(player) {
         const node = new SkillNode({
             id: `skill_${monkey.name}`,
             name: `${monkey.name} Mastery`,
-            description: `Aumenta a produção do ${monkey.name} em +1%`,
+            description: `Aumenta a produção do ${monkey.name} em +10%`,
             category: "monkeys",
             level: 0,
             maxLevel: 100,

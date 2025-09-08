@@ -6,8 +6,8 @@ import { SFX } from './sfx/sfx.js';
 import { bgmManager } from './sfx/bgmManager.js';
 
 
-SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.5);
-SFX.register("denied", "../sfx/denied.m4a", 0.6);
+SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.2);
+SFX.register("denied", "../sfx/denied.m4a", 0.1);
 bgmManager.register("good night lofi", new Audio("../music/good-night-lofi.mp3"));
 bgmManager.register("cheeky monkey", new Audio("../music/cheeky-monkey-392394.mp3"));
 bgmManager.register("lost in dreams", new Audio("../music/lost-in-dreams.mp3"));
@@ -45,6 +45,21 @@ export class UIManager {
 
     }
 
+    showDeniedFeedBack(element, duration = 500) {
+        if (!element) return;
+
+        element.classList.add("denied");
+        setTimeout(() => {
+            element.classList.remove("denied");
+        }, duration);
+    }
+
+    handlePurchase(actionCallback, element) {
+        const success = actionCallback(); // retorna true/false
+        if (!success) this.showDeniedFeedBack(element);
+        return success;
+    }
+
     renderMonkey(monkey) {
         const container = document.getElementById('upgrades-container');
         const buyBtn = document.createElement('button');
@@ -70,7 +85,8 @@ export class UIManager {
         buyBtn.textContent = "Comprar";
 
         buyBtn.addEventListener('click', () => {
-            monkey.buy(this.player, this);
+            const success = monkey.buy(this.player, this);
+            if (!success) this.showDeniedFeedBack(buyBtn);
 
 
         });
@@ -269,9 +285,18 @@ export class UIManager {
                     const btn = document.createElement("button");
                     btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
 
-                    btn.addEventListener("click", () => {
-                        if (!skill.unlocked) skill.unlock(this.player);
-                        else skill.upgrade(this.player, this);
+                    btn.addEventListener("click", (e) => {
+
+                        let success = false;
+                        if (!skill.unlocked) {
+                            success = skill.unlock(this.player);
+                        } else {
+                            success = skill.upgrade(this.player, this);
+                        }
+
+                        if (!success) {
+                            this.showDeniedFeedBack(btn);
+                        }
 
                         // Atualiza só este node
                         levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
