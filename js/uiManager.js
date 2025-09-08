@@ -2,6 +2,11 @@ import { formatNumber } from './utils.js';
 import { GameState } from './GameState.js';
 import { Player } from './player.js';
 import { Mine } from './Mine.js';
+import { SFX } from './sfx/sfx.js';
+
+
+SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.5);
+
 
 export class UIManager {
     constructor(player, config) {
@@ -13,9 +18,13 @@ export class UIManager {
         this.ClickOnBanana();
     }
 
+
     ClickOnBanana() {
+
+
         if (this.elements.bananaButton) {
             this.elements.bananaButton.addEventListener('click', () => {
+                SFX.play("bananaClick");
                 this.player.addBananas(1);
 
                 this.checkAllUnlocks();
@@ -241,7 +250,7 @@ export class UIManager {
                     if (skill.getCost) {
                         const costEl = document.createElement("span");
                         costEl.classList.add("skill-cost");
-                        costEl.textContent = `Custo: ${skill.getCost(skill.level)} bananas`;
+                        costEl.textContent = `Custo: ${formatNumber(skill.getCost(skill.level))} bananas`;
                         skillEl.appendChild(costEl);
                     }
 
