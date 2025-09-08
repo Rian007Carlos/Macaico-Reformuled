@@ -3,10 +3,16 @@ import { GameState } from './GameState.js';
 import { Player } from './player.js';
 import { Mine } from './Mine.js';
 import { SFX } from './sfx/sfx.js';
+import { bgmManager } from './sfx/bgmManager.js';
 
 
 SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.5);
+bgmManager.register("animal", new Audio("../music/animal-252993.mp3"));
+bgmManager.register("animal", new Audio("../music/as-cool-as-a-cucumber-236004.mp3"));
+bgmManager.register("animal", new Audio("../music/cheeky-monkey-392394.mp3"));
+bgmManager.register("animal", new Audio("../music/rain-drops-on-the-banana-leaves-south-china-folk-music-167331.mp3"));
 
+// bgmManager.playBGM();
 
 export class UIManager {
     constructor(player, config) {
@@ -273,6 +279,23 @@ export class UIManager {
         });
     }
 
+    renderPlaylist() {
+        const playlistContainer = document.getElementById("playlist-container");
+        const playlistActions = document.getElementById("playlist-actions");
+        const previousButton = document.createElement("button");
+        const playPauseButton = document.createElement("button");
+        const nextButton = document.createElement("button");
+        const currentMusic = document.createElement("span");
+
+        if (bgmManager) {
+            playlistContainer.prepend(currentMusic);
+            playlistActions.appendChild(previousButton);
+            playlistActions.appendChild(playPauseButton);
+            playlistActions.appendChild(nextButton);
+        }
+
+    }
+
 
     // SAVE / LOAD / RESET
     GameStateEvents() {
@@ -322,6 +345,7 @@ export class UIManager {
 
         this.checkAllUnlocks();
         this.renderAllUnlockedMonkeys();
+        this.renderPlaylist();
     }
 
 
@@ -339,6 +363,7 @@ export class UIManager {
         setInterval(() => {
             this.updateBananasFromMonkeys();
             this.updateAll(); // atualiza HUD
+            this.renderPlaylist();
         }, tickRate);
     }
 

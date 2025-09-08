@@ -50,5 +50,30 @@ class SFXManager {
     }
 }
 
+// Array com as músicas de fundo
+const bgMusicTracks = [
+    new Audio("bg1.mp3"),
+    new Audio("bg2.mp3"),
+    new Audio("bg3.mp3")
+];
+
+let currentTrack = 0;
+
+// Configura cada música para tocar automaticamente a próxima
+bgMusicTracks.forEach(track => {
+    track.loop = false; // loop individual desligado
+    track.addEventListener("ended", () => {
+        playNextTrack();
+    });
+});
+
+function playNextTrack() {
+    currentTrack = (currentTrack + 1) % bgMusicTracks.length; // volta para 0 no final
+    bgMusicTracks[currentTrack].play();
+}
+
+// Começa a primeira música
+bgMusicTracks[currentTrack].play();
+
 // Exporta uma instância global
 export const SFX = new SFXManager();

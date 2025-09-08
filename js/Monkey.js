@@ -6,8 +6,8 @@ export const upgradeMonkeys = [
         cost: 10,
         baseProduction: 1,
         unlockAt: { bananas: 10 },
-
-        costExponent: 1.2
+        costExponent: 1.2,
+        skillTreeBaseCost: 100
     }),
     new UpgradeMonkey({
         name: "Bugio",
@@ -24,7 +24,7 @@ export const upgradeMonkeys = [
         unlockAt: { monkey: { name: "Bugio", level: 10 } },
         unlocksFeature: "laboratory", // desbloqueia laboratório
         costExponent: 1.3,
-        skillTreeBaseCost: 100000
+        skillTreeBaseCost: 5000
     }),
     new UpgradeMonkey({
         name: "Sagui",
@@ -33,7 +33,7 @@ export const upgradeMonkeys = [
         unlockAt: { monkey: { name: "Mico-leão-dourado", level: 10 } },
         unlocksFeature: "mine",   // desbloqueia a mina
         costExponent: 1.35,
-        skillTreeBaseCost: 1000000
+        skillTreeBaseCost: 25000
     }),
     new UpgradeMonkey({
         name: "Macaco-aranha",
@@ -41,7 +41,7 @@ export const upgradeMonkeys = [
         baseProduction: 200,
         unlockAt: { monkey: { name: "Sagui", level: 10 } },
         costExponent: 1.4,
-        skillTreeBaseCost: 10000000
+        skillTreeBaseCost: 75000
     }),
     new UpgradeMonkey({
         name: "Babuíno",
@@ -49,7 +49,7 @@ export const upgradeMonkeys = [
         baseProduction: 1000,
         unlockAt: { monkey: { name: "Macaco-aranha", level: 10 } },
         costExponent: 1.45,
-        skillTreeBaseCost: 50000000
+        skillTreeBaseCost: 250_000
     }),
     new UpgradeMonkey({
         name: "Mandril",
@@ -57,7 +57,7 @@ export const upgradeMonkeys = [
         baseProduction: 5000,
         unlockAt: { monkey: { name: "Babuíno", level: 10 } },
         costExponent: 1.5,
-        skillTreeBaseCost: 500000000
+        skillTreeBaseCost: 420_000
     }),
     new UpgradeMonkey({
         name: "Macaco-de-cheiro",
@@ -65,7 +65,7 @@ export const upgradeMonkeys = [
         baseProduction: 20000,
         unlockAt: { monkey: { name: "Mandril", level: 10 } },
         costExponent: 1.55,
-        skillTreeBaseCost: 1000000000
+        skillTreeBaseCost: 810_000
     }),
     new UpgradeMonkey({
         name: "Macaco-capuchinho",
@@ -73,7 +73,7 @@ export const upgradeMonkeys = [
         baseProduction: 100_000,
         unlockAt: { monkey: { name: "Macaco-de-cheiro", level: 10 } },
         costExponent: 1.6,
-        skillTreeBaseCost: 1500000000
+        skillTreeBaseCost: 1_240_000
     }),
     new UpgradeMonkey({
         name: "Macaco-da-noite",
@@ -81,7 +81,7 @@ export const upgradeMonkeys = [
         baseProduction: 500_000,
         unlockAt: { monkey: { name: "Macaco-capuchinho", level: 10 } },
         costExponent: 1.65,
-        skillTreeBaseCost: 2000000000
+        skillTreeBaseCost: 2_000_000
     }),
     new UpgradeMonkey({
         name: "Macaco-rabo-de-espinho",
@@ -89,7 +89,7 @@ export const upgradeMonkeys = [
         baseProduction: 2_000_000,
         unlockAt: { monkey: { name: "Macaco-da-noite", level: 25 } },
         costExponent: 1.7,
-        skillTreeBaseCost: 10000000000
+        skillTreeBaseCost: 5_300_000
     }),
     new UpgradeMonkey({
         name: "Macaco-uacari",
@@ -97,7 +97,7 @@ export const upgradeMonkeys = [
         baseProduction: 10_000_000,
         unlockAt: { monkey: { name: "Macaco-rabo-de-espinho", level: 25 } },
         costExponent: 1.75,
-        skillTreeBaseCost: 25000000000
+        skillTreeBaseCost: 12_000_000
     }),
     new UpgradeMonkey({
         name: "Macaco-barrigudo",
@@ -105,7 +105,7 @@ export const upgradeMonkeys = [
         baseProduction: 50_000_000,
         unlockAt: { monkey: { name: "Macaco-uacari", level: 25 } },
         costExponent: 1.8,
-        skillTreeBaseCost: 50000000000
+        skillTreeBaseCost: 75_000_000
     }),
     new UpgradeMonkey({
         name: "Macaco-fuliginoso",
@@ -113,7 +113,7 @@ export const upgradeMonkeys = [
         baseProduction: 200_000_000,
         unlockAt: { monkey: { name: "Macaco-barrigudo", level: 25 } },
         costExponent: 1.85,
-        skillTreeBaseCost: 75000000000
+        skillTreeBaseCost: 240_000_000
     }),
     new UpgradeMonkey({
         name: "Macaco-preto",
@@ -122,6 +122,6 @@ export const upgradeMonkeys = [
         unlockAt: { monkey: { name: "Macaco-fuliginoso", level: 25 } },
         unlocksFeature: "forge",  // desbloqueia forge
         costExponent: 1.9,
-        skillTreeBaseCost: 100000000000
+        skillTreeBaseCost: 1_000_000_000
     }),
 ];
