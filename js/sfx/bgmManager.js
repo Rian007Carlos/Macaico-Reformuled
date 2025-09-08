@@ -1,6 +1,6 @@
 // bgmManager.js
 export const bgmManager = {
-    defaltVolume: 0.6,
+    defaltVolume: 0.1,
     tracks: [],       // array de {name, audio}
     currentIndex: 0,  // qual música está tocando
     currentTrack: null,

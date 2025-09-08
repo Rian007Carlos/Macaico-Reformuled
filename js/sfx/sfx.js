@@ -9,7 +9,7 @@ class SFXManager {
     }
 
     // Registra um novo som
-    register(key, src, volume = 0.5, loop = false) {
+    register(key, src, volume = 0.2, loop = false) {
         this.sounds[key] = Array.from({ length: this.poolSize }, () => {
             const audio = new Audio(src);
             audio.volume = volume;

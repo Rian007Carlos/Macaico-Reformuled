@@ -43,7 +43,7 @@ function initGame() {
     ui.updateAll();
 
     if (player.mine.unlocked) {
-        ui.renderMine();
+        // ui.renderMine();
     }
 }
 

@@ -8,9 +8,12 @@ import { bgmManager } from './sfx/bgmManager.js';
 
 SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.5);
 SFX.register("denied", "../sfx/denied.m4a", 0.6);
-bgmManager.register("animal", new Audio("../music/animal-252993.mp3"));
-bgmManager.register("as cool as a cucumber", new Audio("../music/as-cool-as-a-cucumber-236004.mp3"));
+bgmManager.register("good night lofi", new Audio("../music/good-night-lofi.mp3"));
 bgmManager.register("cheeky monkey", new Audio("../music/cheeky-monkey-392394.mp3"));
+bgmManager.register("lost in dreams", new Audio("../music/lost-in-dreams.mp3"));
+bgmManager.register("Monkeys Spinning Monkeys", new Audio("../music/Monkeys-Spinning-Monkeys.mp3"));
+bgmManager.register("as cool as a cucumber", new Audio("../music/as-cool-as-a-cucumber-236004.mp3"));
+bgmManager.register("animal", new Audio("../music/animal-252993.mp3"));
 bgmManager.register("rain drops on the banana leaves", new Audio("../music/rain-drops-on-the-banana-leaves-south-china-folk-music-167331.mp3"));
 
 bgmManager.playBGM();
@@ -132,7 +135,7 @@ export class UIManager {
 
         // Verifica prédios
         if (this.player.mine.unlocked) {
-            this.renderMine();
+            // this.renderMine();
         }
 
 
@@ -170,33 +173,33 @@ export class UIManager {
     }
     // Renderiza a Mina
     // Dentro da classe UIManager
-    renderMine() {
-        const container = document.getElementById('buildings-container');
-        if (!container) return;
+    // renderMine() {
+    //     const container = document.getElementById('buildings-container');
+    //     if (!container) return;
 
-        // Evita duplicar
-        if (this.player.mine.unlocked && !container.querySelector('#mine')) {
-            const mineEl = document.createElement('div');
-            mineEl.id = 'mine';
-            mineEl.classList.add('building');
+    //     // Evita duplicar
+    //     if (this.player.mine.unlocked && !container.querySelector('#mine')) {
+    //         const mineEl = document.createElement('div');
+    //         mineEl.id = 'mine';
+    //         mineEl.classList.add('building');
 
-            const info = document.createElement('span');
-            info.classList.add('mine-info');
-            info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
+    //         const info = document.createElement('span');
+    //         info.classList.add('mine-info');
+    //         info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
 
-            const mininingButton = document.createElement('button');
-            mininingButton.textContent = "Mineirar";
-            mininingButton.addEventListener('click', () => {
-                if (Mine.upgrade()) {
-                    this.updateMineUI();
-                }
-            });
+    //         const mininingButton = document.createElement('button');
+    //         mininingButton.textContent = "Mineirar";
+    //         mininingButton.addEventListener('click', () => {
+    //             if (Mine.upgrade()) {
+    //                 this.updateMineUI();
+    //             }
+    //         });
 
-            mineEl.appendChild(info);
-            mineEl.appendChild(mininingButton);
-            container.appendChild(mineEl);
-        }
-    }
+    //         mineEl.appendChild(info);
+    //         mineEl.appendChild(mininingButton);
+    //         container.appendChild(mineEl);
+    //     }
+    // }
 
     updateMineUI() {
         const info = document.querySelector('#mine .mine-info');
@@ -240,6 +243,7 @@ export class UIManager {
                     const levelEl = document.createElement("span");
                     const nameEl = document.createElement("span");
                     const descriptionEl = document.createElement("p");
+                    const costEl = document.createElement("span");
 
                     skillEl.classList.add("skill-node");
                     nameEl.classList.add("skill-name");
@@ -256,7 +260,7 @@ export class UIManager {
 
                     // Se tiver custo
                     if (skill.getCost) {
-                        const costEl = document.createElement("span");
+
                         costEl.classList.add("skill-cost");
                         costEl.textContent = `Custo: ${formatNumber(skill.getCost(skill.level))} bananas`;
                         skillEl.appendChild(costEl);
@@ -269,7 +273,15 @@ export class UIManager {
                         if (!skill.unlocked) skill.unlock(this.player);
                         else skill.upgrade(this.player, this);
 
-                        this.renderSkillTree();
+                        // Atualiza só este node
+                        levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
+                        nameEl.textContent = skill.unlocked ? skill.name : "???";
+                        descriptionEl.textContent = skill.unlocked ? skill.description : "???";
+                        if (skill.getCost) {
+                            costEl.textContent = `Custo: ${formatNumber(skill.getCost(skill.level))} bananas`;
+                        }
+                        btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
+
                         this.updateAll();
                     });
 

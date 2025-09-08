@@ -1,5 +1,5 @@
 import { SFX } from "./sfx/sfx.js";
-SFX.register("denied", "../sfx/denied.m4a", 0.6);
+SFX.register("denied", "../sfx/denied.m4a", 0.1);
 
 // import { SkillNode } from "./skillNode";
 export class Player {

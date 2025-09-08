@@ -37,6 +37,12 @@ export class SkillNode {
         return this.targetMonkey?.unlocked ?? false;
     }
 
+    set unlocked(value) {
+        if (this.targetMonkey) {
+            this.targetMonkey.unlocked = value;
+        }
+    }
+
     canUnlock(player) {
         return this.unlockRequirements.every(fn => fn(player));
     }
