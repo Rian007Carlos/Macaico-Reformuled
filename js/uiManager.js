@@ -29,20 +29,50 @@ export class UIManager {
         this.playlistInterval = null;
     }
 
-
     ClickOnBanana() {
-
-
         if (this.elements.bananaButton) {
             this.elements.bananaButton.addEventListener('click', () => {
                 SFX.play("bananaClick");
-                this.player.addBananas(this.player.clickValue);
-                this.checkAllUnlocks();
 
+                let isCrit = Math.random() < this.player.critChance;
+                let clickValue = this.player.clickValue;
+
+                if (isCrit && this.player.critMultiplier <= 1) {
+                    isCrit = false;
+                }
+                if (isCrit) {
+                    clickValue *= this.player.critMultiplier;
+                    console.log(this.player.critMultiplier);
+                }
+
+                this.player.addBananas(clickValue, true);   // usa SEMPRE o valor calculado
+                this.createFloatingText(clickValue, isCrit);
+                this.checkAllUnlocks();
             });
         }
-
     }
+
+    createFloatingText(value, isCrit) {
+        const container = document.getElementById("banana-container");
+        const text = document.createElement("div");
+
+        text.className = "floating-text" + (isCrit ? " crit" : "");
+        text.innerText = `+${Math.floor(value)}🍌`;
+
+        const offsetX = (Math.random() - 0.5) * 200;
+        const offsetY = (Math.random() - 0.5) * 50;
+
+        text.style.left = `calc(50% + ${offsetX}px)`;
+        text.style.top = `calc(50% + ${offsetY}px)`;
+        text.style.position = "absolute";
+
+        container.appendChild(text);
+
+        setTimeout(() => {
+            text.remove();
+        }, 1000);
+    }
+
 
     showDeniedFeedBack(element, duration = 500) {
         if (!element) return;

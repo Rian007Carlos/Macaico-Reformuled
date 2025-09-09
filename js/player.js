@@ -20,13 +20,9 @@ export class Player {
         this.laboratory = { unlocked: false };
         this.forge = { unlocked: false };
     }
-    addBananas(amount = 1) {
+    addBananas(amount = 1, isCLick = false) {
         // calcula o total incluindo crítico
         let total = amount;
-        if (Math.random() < this.critChance) {
-            total *= this.critMultiplier;
-            // opcional: trigger de animação de crítico
-        }
 
         // acumula fracionário
         this.bananasFraction = (this.bananasFraction || 0) + total;

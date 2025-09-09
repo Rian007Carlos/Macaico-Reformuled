@@ -36,12 +36,13 @@ const skillTreeData = [
         name: "Click Boost",
         description: "Valor do click aumentado em +1 por nível.",
         category: "click",
-        maxLevel: 10,
+        maxLevel: 100,
         unlocked: false,
         parents: [],
         effect: (player, level) => {
             const increment = 1;
             player.clickValue += increment;
+
         }
     },
     {

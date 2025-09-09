@@ -141,18 +141,6 @@
             animation: scroll-text 10s linear infinite;
         }
 
-        @keyframes scroll-text {
-            0% {
-                transform: translateX(0%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-
-
         #hud {
             position: sticky;
             top: 1em;
@@ -177,13 +165,24 @@
             color: #ffcc33;
         }
 
+        #banana-container {
+            position: relative;
+            border: 2px solid yellow;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         #banana-button {
+            display: block;
             position: sticky;
             top: 3em;
-            font-size: 24px;
+            font-size: 50px;
             padding: 10px 20px;
             cursor: pointer;
             z-index: 2;
+            background-color: transparent;
+            text-shadow: 2px 2px 5px rgba(255, 218, 6, 0.566);
         }
 
         #upgrades-container {
@@ -241,7 +240,6 @@
         }
 
         button {
-            margin-left: 10px;
             padding: 5px 10px;
             border: none;
             border-radius: 6px;
@@ -324,6 +322,42 @@
             animation: deniedFlash 0.3s ease;
         }
 
+        .floating-text {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            color: white;
+            text-shadow: 1px 1px 3px black;
+            z-index: 1000;
+        }
+
+        .floating-text.crit {
+            font-size: 32px;
+            color: #ffa500;
+            /* laranja do crítico */
+            text-shadow: 2px 2px 6px black;
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                opacity: 0.9;
+                transform: translateY(-30px) scale(1.2);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.8);
+            }
+        }
+
+
         @keyframes deniedFlash {
             0% {
                 background-color: #ff4d4d;
@@ -338,6 +372,15 @@
             }
         }
 
+        @keyframes scroll-text {
+            0% {
+                transform: translateX(0%);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
 
 
 
@@ -413,8 +456,10 @@
             </div>
         </div>
 
-        <!-- Botão principal -->
-        <button id="banana-button">🍌 +1 Banana</button>
+        <div id="banana-container">
+            <!-- Botão principal -->
+            <button id="banana-button">🍌</button>
+        </div>
 
 
 
