@@ -26,6 +26,7 @@ export class Player {
             this.bananasFraction -= whole;
         }
         this.refreshHUD();
+
     }
 
     spendBananas(amount) {

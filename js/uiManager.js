@@ -16,7 +16,7 @@ bgmManager.register("as cool as a cucumber", new Audio("../music/as-cool-as-a-cu
 bgmManager.register("animal", new Audio("../music/animal-252993.mp3"));
 bgmManager.register("rain drops on the banana leaves", new Audio("../music/rain-drops-on-the-banana-leaves-south-china-folk-music-167331.mp3"));
 
-bgmManager.playBGM();
+// bgmManager.playBGM();
 
 export class UIManager {
     constructor(player, config) {
@@ -37,7 +37,6 @@ export class UIManager {
             this.elements.bananaButton.addEventListener('click', () => {
                 SFX.play("bananaClick");
                 this.player.addBananas(1);
-
                 this.checkAllUnlocks();
 
             });
@@ -230,63 +229,64 @@ export class UIManager {
             container.innerHTML = '';
         }
     }
-
     renderSkillTree() {
         const container = document.getElementById("skills-container");
         if (!container) return;
         container.innerHTML = '';
 
-        this.player.skillCategories.forEach(category => {
-            // Cria container da categoria
+        // segurança: garante arrays válidos
+        const skills = Array.isArray(this.player?.skills) ? this.player.skills : [];
+        const categories = Array.isArray(this.player?.skillCategories) && this.player.skillCategories.length > 0
+            ? this.player.skillCategories
+            : [...new Set(skills.map(s => s.category || 'default'))];
+
+        categories.forEach(category => {
             const catDiv = document.createElement("div");
             catDiv.classList.add("skill-category");
 
-            // Título da categoria
             const title = document.createElement("h3");
-            title.textContent = category.toUpperCase();
+            title.textContent = (category || 'DEFAULT').toString().toUpperCase();
             catDiv.appendChild(title);
 
-            // Container dos nodes
             const categoryNodes = document.createElement("div");
             categoryNodes.classList.add("category__nodes");
             catDiv.appendChild(categoryNodes);
 
-            // Adiciona cada skill da categoria
-            this.player.skills
-                .filter(skill => skill.category === category)
+            skills
+                .filter(skill => skill && skill.category === category)
                 .forEach(skill => {
                     const skillEl = document.createElement("div");
                     const levelEl = document.createElement("span");
                     const nameEl = document.createElement("span");
                     const descriptionEl = document.createElement("p");
-                    const costEl = document.createElement("span");
+                    const costEl = document.createElement("span"); // criado sempre
 
                     skillEl.classList.add("skill-node");
+
                     nameEl.classList.add("skill-name");
                     nameEl.textContent = skill.unlocked ? skill.name : "???";
+
                     descriptionEl.textContent = skill.unlocked ? skill.description : "???";
 
                     levelEl.classList.add("skill-level");
                     levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
 
-
                     skillEl.appendChild(nameEl);
                     skillEl.appendChild(levelEl);
                     skillEl.appendChild(descriptionEl);
 
-                    // Se tiver custo
-                    if (skill.getCost) {
-
+                    if (typeof skill.getCost === 'function') {
                         costEl.classList.add("skill-cost");
-                        costEl.textContent = `Custo: ${formatNumber(skill.getCost(skill.level))} bananas`;
+                        // proteja getCost caso skill.level seja undefined
+                        const lvl = (typeof skill.level === 'number') ? skill.level : 0;
+                        costEl.textContent = `Custo: ${formatNumber(skill.getCost(lvl))} bananas`;
                         skillEl.appendChild(costEl);
                     }
 
                     const btn = document.createElement("button");
                     btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
 
-                    btn.addEventListener("click", (e) => {
-
+                    btn.addEventListener("click", () => {
                         let success = false;
                         if (!skill.unlocked) {
                             success = skill.unlock(this.player);
@@ -302,8 +302,9 @@ export class UIManager {
                         levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
                         nameEl.textContent = skill.unlocked ? skill.name : "???";
                         descriptionEl.textContent = skill.unlocked ? skill.description : "???";
-                        if (skill.getCost) {
-                            costEl.textContent = `Custo: ${formatNumber(skill.getCost(skill.level))} bananas`;
+                        if (typeof skill.getCost === 'function') {
+                            const lvl = (typeof skill.level === 'number') ? skill.level : 0;
+                            costEl.textContent = `Custo: ${formatNumber(skill.getCost(lvl))} bananas`;
                         }
                         btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
 
@@ -317,6 +318,7 @@ export class UIManager {
             container.appendChild(catDiv);
         });
     }
+
 
     renderPlaylist() {
         const playlistContainer = document.getElementById("playlist-container");

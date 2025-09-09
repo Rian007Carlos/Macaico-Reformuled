@@ -32,6 +32,19 @@ const skillTreeData = [
         }
     },
     {
+        id: "clickBoost1",
+        name: "Click Boost",
+        description: "Dobra o valor do click.",
+        category: "click",
+        maxLevel: 1000,
+        unlocked: false,
+        parents: [],
+        effect: (player, level) => {
+            let multiplier = 2;
+            player.addBananas();
+        }
+    },
+    {
         id: "mineEfficiency",
         name: "Mine Efficiency",
         description: "Aumenta produção da mina",
@@ -69,6 +82,13 @@ export function createSkillTree(player) {
     });
 
     createMonkeySkillNodes(player);
+
+
+    // garante categories atualizadas
+    player.skillCategories = [...new Set((player.skills || []).map(s => s.category || 'default'))];
+
+    // retorna para conveniência (evita chamadas duplicadas)
+    return player.skills;
 }
 
 

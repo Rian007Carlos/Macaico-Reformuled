@@ -8,7 +8,8 @@ import { bgmManager } from './sfx/bgmManager.js';
 
 // === Instâncias principais ===
 const player = new Player(null);
-createSkillTree(player);
+player.skills = createSkillTree(player);
+player.skillCategories = [...new Set((player.skills || []).map(s => s.category || 'default'))];
 
 const upgrades = [...upgradeMonkeys];
 player.upgrades = upgrades;
@@ -33,6 +34,8 @@ const ui = new UIManager(player, {
 });
 
 player.uiManager = ui;
+
+GameState.load(player, upgrades, buildings, ui);
 ui.renderSkillTree();
 
 // carrega estado salvo
