@@ -158,6 +158,8 @@ export class UIManager {
             }
         });
 
+        total *= (this.player.globalProductionMultiplier || 1);
+
         this.player.addBananas(total);
     }
 
@@ -259,6 +261,7 @@ export class UIManager {
             container.innerHTML = '';
         }
     }
+
     renderSkillTree() {
         const container = document.getElementById("skills-container");
         if (!container) return;

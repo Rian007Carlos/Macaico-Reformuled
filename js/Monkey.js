@@ -4,15 +4,15 @@ export const upgradeMonkeys = [
     new UpgradeMonkey({
         name: "Macaco-prego",
         cost: 10,
-        baseProduction: 1,
+        baseProduction: 5,
         unlockAt: { bananas: 10 },
-        costExponent: 1.2,
+        costExponent: 1.4,
         skillTreeBaseCost: 100
     }),
     new UpgradeMonkey({
         name: "Bugio",
         cost: 50,
-        baseProduction: 5,
+        baseProduction: 50,
         unlockAt: { monkey: { name: "Macaco-prego", level: 10 } },
         costExponent: 1.25,
         skillTreeBaseCost: 1000
@@ -20,7 +20,7 @@ export const upgradeMonkeys = [
     new UpgradeMonkey({
         name: "Mico-leão-dourado",
         cost: 200,
-        baseProduction: 20,
+        baseProduction: 100,
         unlockAt: { monkey: { name: "Bugio", level: 10 } },
         unlocksFeature: "laboratory", // desbloqueia laboratório
         costExponent: 1.3,
@@ -29,7 +29,7 @@ export const upgradeMonkeys = [
     new UpgradeMonkey({
         name: "Sagui",
         cost: 1000,
-        baseProduction: 50,
+        baseProduction: 250,
         unlockAt: { monkey: { name: "Mico-leão-dourado", level: 10 } },
         unlocksFeature: "mine",   // desbloqueia a mina
         costExponent: 1.35,
@@ -38,7 +38,7 @@ export const upgradeMonkeys = [
     new UpgradeMonkey({
         name: "Macaco-aranha",
         cost: 5000,
-        baseProduction: 200,
+        baseProduction: 500,
         unlockAt: { monkey: { name: "Sagui", level: 10 } },
         costExponent: 1.4,
         skillTreeBaseCost: 75000

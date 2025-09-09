@@ -8,10 +8,15 @@ export class Player {
         this.bananas = 0;
         this.prismatics = 0;
         this.bananasPerSecond = 0;
+        this.baseBananasPerSecond = this.bananasPerSecond || 0;
+        this.baseClickValue = this.clickValue || 1;
+        this.baseMineMultiplier = this.mine?.multiplier || 1;
         this.clickValue = 1;
         this.critChance = 0;
         this.critMultiplier = 0;
         this.upgrades = [];
+        this.monkeys = [];
+        this.globalProductionMultiplier = 1;
         this.productionMultiplier = 1;
         this.skills = [];
         this.skillCategories = ["click", "bananas", "production", "mine", "lab", "forge", "multiplier", "monkeys", "rare"];
@@ -19,6 +24,34 @@ export class Player {
         this.mine = { unlocked: false, level: 0, production: 0, multiplier: 0 };
         this.laboratory = { unlocked: false };
         this.forge = { unlocked: false };
+        this.startTime = Date.now();
+        this.milestonesReached = {};
+    }
+
+    getPlayTimeSeconds() {
+        return Math.floor((Date.now() - this.startTime) / 1000);
+    }
+
+
+    formatPlayTime() {
+        const seconds = this.getPlayTimeSeconds();
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        if (h > 0) return `${h}h ${m}m ${s}s`;
+        if (m > 0) return `${m}m ${s}s`;
+        return `${s}s`;
+    }
+
+    checkMilestones() {
+        const milestones = [1_000, 10_000, 100_000, 1_000_000, 10_000_000];
+        for (const milestone of milestones) {
+            if (this.bananas >= milestone && !this.milestonesReached[milestone]) {
+                this.milestonesReached[milestone] = this.getPlayTimeSeconds();
+                console.log(`🎯 Milestone atingido: ${milestone.toLocaleString()} bananas em ${this.formatPlayTime()}`);
+            }
+        }
     }
     addBananas(amount = 1, isCLick = false) {
         // calcula o total incluindo crítico
@@ -32,7 +65,7 @@ export class Player {
             this.bananas += whole;
             this.bananasFraction -= whole;
         }
-
+        this.checkMilestones();
         this.refreshHUD();
     }
 
@@ -62,6 +95,11 @@ export class Player {
         return false;
     }
 
+    getTotalMonkeyproduction() {
+        const base = this.monkeys.reduce((sum, m) => sum + m.baseProduction, 0);
+        return base * this.globalProductionMultiplier;
+    }
+
     recalculateBPS() {
         let bps = 0;
 
@@ -77,6 +115,7 @@ export class Player {
         }
 
         bps *= this.productionMultiplier || 1;
+        bps *= this.globalProductionMultiplier || 1;
 
         if (!isFinite(bps) || isNaN(bps)) bps = 0;
 

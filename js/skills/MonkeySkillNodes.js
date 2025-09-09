@@ -12,7 +12,7 @@ export function createMonkeySkillNodes(player) {
             description: `Aumenta a produção do ${monkey.name} em +10%`,
             category: "monkeys",
             level: 0,
-            maxLevel: 100,
+            maxLevel: 10,
             targetMonkey: monkey,
             baseCost: monkey.skillTreeBaseCost || 25,
 
@@ -21,11 +21,11 @@ export function createMonkeySkillNodes(player) {
                 const base = this.baseCost || 25;
                 const nextLevel = level + 1;
                 const thresholds = [
-                    { level: 0, p: 1.2 },
-                    { level: 11, p: 3.5 },
-                    { level: 26, p: 4.2 },
-                    { level: 51, p: 4.9 },
-                    { level: 100, p: 10 }
+                    { level: 0, p: 1.1 },
+                    { level: 11, p: 2.3 },
+                    { level: 26, p: 3.4 },
+                    { level: 51, p: 4.5 },
+                    { level: 100, p: 5.6 }
                 ];
                 let currentThreshold = thresholds[0];
                 let nextThreshold = thresholds[1];

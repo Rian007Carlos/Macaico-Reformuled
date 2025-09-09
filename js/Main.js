@@ -11,6 +11,7 @@ const player = new Player(null);
 player.skills = createSkillTree(player);
 player.skillCategories = [...new Set((player.skills || []).map(s => s.category || 'default'))];
 
+
 const upgrades = [...upgradeMonkeys];
 player.upgrades = upgrades;
 const buildings = [
