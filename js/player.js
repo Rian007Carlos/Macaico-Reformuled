@@ -8,6 +8,9 @@ export class Player {
         this.bananas = 0;
         this.prismatics = 0;
         this.bananasPerSecond = 0;
+        this.clickValue = 1;
+        this.critChance = 0;
+        this.critMultiplier = 0;
         this.upgrades = [];
         this.productionMultiplier = 1;
         this.skills = [];
@@ -17,17 +20,26 @@ export class Player {
         this.laboratory = { unlocked: false };
         this.forge = { unlocked: false };
     }
+    addBananas(amount = 1) {
+        // calcula o total incluindo crítico
+        let total = amount;
+        if (Math.random() < this.critChance) {
+            total *= this.critMultiplier;
+            // opcional: trigger de animação de crítico
+        }
 
-    addBananas(amount) {
-        this.bananasFraction = (this.bananasFraction || 0) + amount;
+        // acumula fracionário
+        this.bananasFraction = (this.bananasFraction || 0) + total;
         const whole = Math.floor(this.bananasFraction);
+
         if (whole > 0) {
             this.bananas += whole;
             this.bananasFraction -= whole;
         }
-        this.refreshHUD();
 
+        this.refreshHUD();
     }
+
 
     spendBananas(amount) {
         if (this.bananas >= amount) {

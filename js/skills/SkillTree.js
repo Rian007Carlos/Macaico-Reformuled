@@ -28,20 +28,47 @@ const skillTreeData = [
             (player) => player.getSkillById("bananaBoost1")?.level >= 3
         ],
         effect: (player, level) => {
-            player.bananasPerSecond += player.bananasPerSecond * (1 + 0.02 * level);
+            player.bananasPerSecond *= 1 + 0.01 * level;
         }
     },
     {
         id: "clickBoost1",
         name: "Click Boost",
-        description: "Dobra o valor do click.",
+        description: "Valor do click aumentado em +1 por nível.",
         category: "click",
-        maxLevel: 1000,
+        maxLevel: 10,
         unlocked: false,
         parents: [],
         effect: (player, level) => {
-            let multiplier = 2;
-            player.addBananas();
+            const increment = 1;
+            player.clickValue += increment;
+        }
+    },
+    {
+        id: "critChanceBoost",
+        name: "Critical Chance",
+        description: "Aumenta a chance de crítico do click em 1% por nível.",
+        category: "click",
+        maxLevel: 50,
+        unlocked: false,
+        parents: [],
+        effect: (player, level) => {
+            const baseChance = 0.04; // 4% inicial
+            player.critChance = baseChance + 0.01 * level; // +1% por nível
+            if (player.critChance > 1) player.critChance = 1; // limite 100%
+        }
+    },
+    {
+        id: "critMultiplierBoost",
+        name: "Critical Multiplier",
+        description: "Aumenta o multiplicador dos críticos em +0.1 por nível.",
+        category: "click",
+        maxLevel: 50,
+        unlocked: false,
+        parents: [],
+        effect: (player, level) => {
+            const baseMultiplier = 2; // crítico inicial vale 2x
+            player.critMultiplier = baseMultiplier + 0.1 * level;
         }
     },
     {

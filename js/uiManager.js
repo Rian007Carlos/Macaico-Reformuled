@@ -36,7 +36,7 @@ export class UIManager {
         if (this.elements.bananaButton) {
             this.elements.bananaButton.addEventListener('click', () => {
                 SFX.play("bananaClick");
-                this.player.addBananas(1);
+                this.player.addBananas(this.player.clickValue);
                 this.checkAllUnlocks();
 
             });
@@ -275,16 +275,17 @@ export class UIManager {
                     skillEl.appendChild(levelEl);
                     skillEl.appendChild(descriptionEl);
 
-                    if (typeof skill.getCost === 'function') {
+                    // dentro de renderSkillTree, para exibir custo:
+                    if (skill.hasCost && skill.hasCost()) {
                         costEl.classList.add("skill-cost");
-                        // proteja getCost caso skill.level seja undefined
                         const lvl = (typeof skill.level === 'number') ? skill.level : 0;
-                        costEl.textContent = `Custo: ${formatNumber(skill.getCost(lvl))} bananas`;
+                        const nextCost = skill.getNextCost(lvl);
+                        costEl.textContent = `Custo: ${formatNumber(nextCost)} bananas`;
                         skillEl.appendChild(costEl);
                     }
 
                     const btn = document.createElement("button");
-                    btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
+                    btn.textContent = skill.unlocked ? "Atualizar" : "Desbloquear";
 
                     btn.addEventListener("click", () => {
                         let success = false;
@@ -302,11 +303,14 @@ export class UIManager {
                         levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
                         nameEl.textContent = skill.unlocked ? skill.name : "???";
                         descriptionEl.textContent = skill.unlocked ? skill.description : "???";
-                        if (typeof skill.getCost === 'function') {
+                        // depois do action:
+                        if (skill.hasCost && skill.hasCost()) {
                             const lvl = (typeof skill.level === 'number') ? skill.level : 0;
-                            costEl.textContent = `Custo: ${formatNumber(skill.getCost(lvl))} bananas`;
+                            costEl.textContent = `Custo: ${formatNumber(skill.getNextCost(lvl))} bananas`;
+                        } else {
+                            costEl.textContent = ''; // ou remova o elemento
                         }
-                        btn.textContent = skill.unlocked ? "Upgrade" : "Unlock";
+                        btn.textContent = skill.unlocked ? "Atualizar" : "Desbloquear";
 
                         this.updateAll();
                     });
