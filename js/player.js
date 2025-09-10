@@ -28,31 +28,6 @@ export class Player {
         this.milestonesReached = {};
     }
 
-    getPlayTimeSeconds() {
-        return Math.floor((Date.now() - this.startTime) / 1000);
-    }
-
-
-    formatPlayTime() {
-        const seconds = this.getPlayTimeSeconds();
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-
-        if (h > 0) return `${h}h ${m}m ${s}s`;
-        if (m > 0) return `${m}m ${s}s`;
-        return `${s}s`;
-    }
-
-    checkMilestones() {
-        const milestones = [1_000, 10_000, 100_000, 1_000_000, 10_000_000];
-        for (const milestone of milestones) {
-            if (this.bananas >= milestone && !this.milestonesReached[milestone]) {
-                this.milestonesReached[milestone] = this.getPlayTimeSeconds();
-                console.log(`🎯 Milestone atingido: ${milestone.toLocaleString()} bananas em ${this.formatPlayTime()}`);
-            }
-        }
-    }
     addBananas(amount = 1, isCLick = false) {
         // calcula o total incluindo crítico
         let total = amount;
@@ -65,7 +40,6 @@ export class Player {
             this.bananas += whole;
             this.bananasFraction -= whole;
         }
-        this.checkMilestones();
         this.refreshHUD();
     }
 

@@ -4,6 +4,7 @@ import { Player } from './player.js';
 import { Mine } from './Mine.js';
 import { SFX } from './sfx/sfx.js';
 import { bgmManager } from './sfx/bgmManager.js';
+import { Telemetry } from './telemetry.js';
 
 
 SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.2);
@@ -21,6 +22,7 @@ bgmManager.register("rain drops on the banana leaves", new Audio("../music/rain-
 export class UIManager {
     constructor(player, config) {
         this.player = player;
+        this.telemetry = new Telemetry(this);
         this.elements = config;
         this.elements.upgrades = config.upgrades || [];
         this.elements.buildings = config.buildings || [];
@@ -205,6 +207,7 @@ export class UIManager {
         this.updateBananaDisplay(player.bananas);
         this.updatePrismaticDisplay(player.prismatics);
         this.updateBananasPerSecondDisplay(player.bananasPerSecond);
+        this.telemetry.check(player);
     }
 
     updateBananaDisplay(amount) {
