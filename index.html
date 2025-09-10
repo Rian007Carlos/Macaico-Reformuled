@@ -27,6 +27,15 @@
 
         }
 
+        #title {
+            align-self: flex-start;
+            margin: 1em;
+            font-size: 1.4em;
+            color: #ffa500;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.544);
+        }
+
         h2 {
             align-self: flex-start;
             padding: 1em;
@@ -147,7 +156,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 50%;
+            width: fit-content;
+            align-self: flex-start;
+            margin: 1em;
             gap: 20px;
             border-radius: 6px;
             z-index: 2;
@@ -193,7 +204,7 @@
             gap: 1em;
             height: 67vh;
             overflow: auto;
-            padding: 8px;
+            padding: 1em;
 
 
         }
@@ -209,6 +220,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             flex-basis: 15%;
             max-height: 200px;
+            max-width: 400px;
         }
 
         #buildings {
@@ -223,7 +235,6 @@
         #hud {
             border: 2px solid #444;
             border-radius: 8px;
-
             margin-bottom: 10px;
             background: #222;
             color: #fff;
@@ -339,6 +350,18 @@
             text-shadow: 2px 2px 6px black;
         }
 
+
+        .game-state {
+            width: fit-content;
+            display: flex;
+            gap: 1em;
+            background-color: #222;
+            padding: 1em;
+            margin: 1em;
+            align-self: flex-start;
+            border-radius: 10px;
+        }
+
         @keyframes floatUp {
             0% {
                 opacity: 1;
@@ -431,6 +454,7 @@
 
 
     <div id="game">
+        <h1 id="title">🐒 Macaicos Clicker</h1>
         <div id="playlist-container">
             <div id="current-music-container">
                 <div id="current-music"></div>
@@ -443,8 +467,9 @@
             <button id="save-button">Salvar</button>
             <button id="load-button">📂 Carregar</button>
             <button id="reset-button">Resetar</button>
+            <div id="telemetryButtonContainer"></div>
         </div>
-        <h1>🐒 Macaicos Clicker</h1>
+
         <!-- HUD -->
         <div id="hud">
             <!-- Botões de controle -->

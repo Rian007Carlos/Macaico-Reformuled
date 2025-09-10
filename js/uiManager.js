@@ -22,7 +22,7 @@ bgmManager.register("rain drops on the banana leaves", new Audio("../music/rain-
 export class UIManager {
     constructor(player, config) {
         this.player = player;
-        this.telemetry = new Telemetry(this);
+        this.telemetry = new Telemetry(player);
         this.elements = config;
         this.elements.upgrades = config.upgrades || [];
         this.elements.buildings = config.buildings || [];
@@ -44,7 +44,6 @@ export class UIManager {
                 }
                 if (isCrit) {
                     clickValue *= this.player.critMultiplier;
-                    console.log(this.player.critMultiplier);
                 }
 
                 this.player.addBananas(clickValue, true);   // usa SEMPRE o valor calculado
@@ -207,7 +206,6 @@ export class UIManager {
         this.updateBananaDisplay(player.bananas);
         this.updatePrismaticDisplay(player.prismatics);
         this.updateBananasPerSecondDisplay(player.bananasPerSecond);
-        this.telemetry.check(player);
     }
 
     updateBananaDisplay(amount) {
@@ -480,6 +478,17 @@ export class UIManager {
 
             });
         }
+
+        // Botão de print manual de telemetria
+        if (this.elements.telemetryButtonContainer) {
+            const printBtn = document.createElement("button");
+            printBtn.textContent = "Print Telemetry";
+            printBtn.addEventListener("click", () => {
+                this.telemetry.printNow();
+            });
+            this.elements.telemetryButtonContainer.appendChild(printBtn);
+        }
+
     }
 
     initUI() {
@@ -510,6 +519,7 @@ export class UIManager {
         const tickRate = 1000; // 1 segundo por tick
         setInterval(() => {
             this.updateBananasFromMonkeys();
+            this.telemetry.tick();
             this.updateAll(); // atualiza HUD
 
         }, tickRate);

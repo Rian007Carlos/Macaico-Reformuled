@@ -22,6 +22,7 @@ const buildings = [
 
 // UIManager recebe referências aos elementos do DOM
 const ui = new UIManager(player, {
+    telemetryButtonContainer: document.getElementById('telemetryButtonContainer'),
     bananaCount: document.getElementById('banana-count'),
     prismaticCount: document.getElementById('prismatics-count'),
     bananasPerSec: document.getElementById('bananas-per-second'),
@@ -31,7 +32,6 @@ const ui = new UIManager(player, {
     resetButton: document.getElementById('reset-button'),
     upgrades: upgrades,
     buildings: buildings,
-
 });
 
 player.uiManager = ui;

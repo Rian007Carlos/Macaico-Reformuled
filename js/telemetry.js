@@ -1,81 +1,63 @@
 export class Telemetry {
-    constructor(uiManager) {
-        this.uiManager = uiManager;
-        this.startTime = Date.now();
-        this.milestones = [1000, 10000, 100000, 1000000];
-        this.reached = new Set();
-        this.logs = [];
-    }
-
-    // Tempo total de jogo em segundos
-    getPlayTimeSeconds() {
-        return Math.floor((Date.now() - this.startTime) / 1000);
-    }
-
-    // Formatar tempo (hh:mm:ss)
-    formatTime(seconds) {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-        return `${h}h ${m}m ${s}s`;
-    }
-
-    // Captura snapshot do estado atual
-    captureSnapshot(player, milestone) {
-        const elapsed = this.getPlayTimeSeconds();
-
-        const snapshot = {
-            milestone,
-            bananas: player.bananas,
-            timeElapsed: elapsed,
-            monkeys: player.monkeys.map(m => ({
-                name: m.name,
-                level: m.level,
-                production: m.production
-            })),
-            skills: player.skills.map(s => ({
-                id: s.id,
-                level: s.level
-            }))
+    constructor(player) {
+        this.player = player;
+        this.data = {
+            startTime: Date.now(),
+            milestones: {},
+            upgrades: [],
+            skills: [],
         };
-
-        this.logs.push(snapshot);
-
-        console.log(`🎯 Milestone atingido: ${milestone.toLocaleString()} bananas em ${this.formatTime(elapsed)}`);
-
-        this.updateUI();
     }
 
-    // Checa milestones
-    check(player) {
-        this.milestones.forEach(m => {
-            if (player.bananas >= m && !this.reached.has(m)) {
-                this.reached.add(m);
-                this.captureSnapshot(player, m);
+    // Milestones: registra tempo para alcançar certos valores
+    checkMilestones() {
+        const milestones = [10, 1_000, 10_000, 100_000, 1_000_000, 10_000_000];
+        for (const milestone of milestones) {
+            if (this.player.bananas >= milestone && !this.data.milestones[milestone]) {
+                this.data.milestones[milestone] =
+                    Math.floor((Date.now() - this.data.startTime) / 1000);
+                console.log(
+                    `🏆 Milestone ${milestone} atingido em ${this.data.milestones[milestone]}s`
+                );
             }
-        });
-    }
-
-    // Atualiza HUD de telemetria
-    updateUI() {
-        const container = document.getElementById("telemetry");
-        if (!container) return;
-
-        let html = `<p>⏱ Tempo de jogo: ${this.formatTime(this.getPlayTimeSeconds())}</p>`;
-        for (const log of this.logs) {
-            const minutes = (log.timeElapsed / 60).toFixed(2);
-            html += `<p>${log.milestone.toLocaleString()} bananas: ${minutes} min</p>`;
         }
-
-        container.innerHTML = html;
     }
 
-    // Exporta JSON
-    export() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.logs, null, 2));
-        const dlAnchor = document.createElement("a");
-        dlAnchor.setAttribute("href", dataStr);
-        dlAnchor.setAttribute("download", "telemetry.json");
-        dlAnchor.click();
+    // Captura o estado atual do jogador
+    updateSnapshot() {
+        this.data.skills = Array.isArray(this.player.skills)
+            ? this.player.skills.map(skill => ({
+                id: skill.id,
+                level: skill.level,
+                unlocked: skill.unlocked,
+            }))
+            : [];
+
+        this.data.upgrades = Array.isArray(this.player.upgrades)
+            ? this.player.upgrades.map(upg => ({
+                name: upg.name,
+                level: upg.level,
+                unlocked: upg.unlocked,
+                production: typeof upg.getProduction === "function" ? upg.getProduction() : 0,
+                cost: upg.cost || 0,
+            }))
+            : [];
+    }
+
+    // Tick: só milestones automáticas
+    tick() {
+        this.checkMilestones();
+    }
+
+    // Print manual
+    printNow() {
+        this.updateSnapshot();
+        console.log("📊 Telemetry snapshot:", {
+            bananas: this.player.bananas,
+            bananasPerSecond: this.player.bananasPerSecond,
+            milestones: this.data.milestones,
+            upgrades: this.data.upgrades,
+            skills: this.data.skills,
+        });
     }
 }
