@@ -32,24 +32,33 @@ const ui = new UIManager(player, {
     resetButton: document.getElementById('reset-button'),
     upgrades: upgrades,
     buildings: buildings,
+    skills: player.skills
 });
 
 player.uiManager = ui;
-
-GameState.load(player, upgrades, buildings, ui);
 ui.renderSkillTree();
+ui.startUIRenderLoop();
 
 // carrega estado salvo
 function initGame() {
     GameState.load(player, upgrades, buildings, ui);
-    ui.renderAllUnlockedMonkeys();
-    ui.checkAllUnlocks();
-    ui.updateAll();
 
+    // === Renderização inicial ===
+    ui.clearMonkeys();              // limpa antes de re-renderizar
+    ui.renderAllUnlockedMonkeys();  // recria todos os macacos desbloqueados
+    ui.checkAllUnlocks();           // garante que unlocks dependentes sejam verificados
+    ui.updateAllCounters(player);   // counters (bananas, prismatics, BPS)
+
+    // Skills: reaplicar visual dos nós (locked/unlocked/level)
+    ui.renderSkillTree();
+    ui.updateSkillTreeUI(player);
+
+    // Buildings
     if (player.mine.unlocked) {
-        // ui.renderMine();
+        ui.renderMine();
     }
 }
+
 
 
 // ui.showReloadWarning();

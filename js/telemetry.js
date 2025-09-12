@@ -9,15 +9,30 @@ export class Telemetry {
         };
     }
 
+    // Utilitário: converte segundos em hh:mm:ss
+    formatTime(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        if (h > 0) {
+            return `${h}h ${m}m ${s}s`;
+        } else if (m > 0) {
+            return `${m}m ${s}s`;
+        } else {
+            return `${s}s`;
+        }
+    }
+
     // Milestones: registra tempo para alcançar certos valores
     checkMilestones() {
         const milestones = [10, 1_000, 10_000, 100_000, 1_000_000, 10_000_000];
         for (const milestone of milestones) {
             if (this.player.bananas >= milestone && !this.data.milestones[milestone]) {
-                this.data.milestones[milestone] =
-                    Math.floor((Date.now() - this.data.startTime) / 1000);
+                const seconds = Math.floor((Date.now() - this.data.startTime) / 1000);
+                this.data.milestones[milestone] = seconds;
                 console.log(
-                    `🏆 Milestone ${milestone} atingido em ${this.data.milestones[milestone]}s`
+                    `🏆 Milestone ${milestone} atingido em ${this.formatTime(seconds)}`
                 );
             }
         }
@@ -38,7 +53,10 @@ export class Telemetry {
                 name: upg.name,
                 level: upg.level,
                 unlocked: upg.unlocked,
-                production: typeof upg.getProduction === "function" ? upg.getProduction() : 0,
+                production:
+                    typeof upg.getProduction === "function"
+                        ? upg.getProduction()
+                        : 0,
                 cost: upg.cost || 0,
             }))
             : [];
@@ -55,7 +73,12 @@ export class Telemetry {
         console.log("📊 Telemetry snapshot:", {
             bananas: this.player.bananas,
             bananasPerSecond: this.player.bananasPerSecond,
-            milestones: this.data.milestones,
+            milestones: Object.fromEntries(
+                Object.entries(this.data.milestones).map(([m, secs]) => [
+                    m,
+                    this.formatTime(secs),
+                ])
+            ),
             upgrades: this.data.upgrades,
             skills: this.data.skills,
         });

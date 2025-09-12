@@ -1,141 +1,309 @@
 import { SkillNode } from "./SkillNode.js";
-import { Player } from "../player.js";
-import { upgradeMonkeys } from "../Monkey.js";
 import { createMonkeySkillNodes } from "./MonkeySkillNodes.js";
+import { createMineSkillNodes } from "./MineSkillNode.js";
 
-// Skill tree dinâmica com coordenadas e pais
-// Skill tree organizada por categorias
+// Skill tree organizada por categorias e progressão
 export const skillTreeData = {
+    // ===================== BANANAS =====================
     bananas: [
         {
             id: "bananaBoost1",
             name: "Banana Boost I",
-            description: "Aumenta a produção de bananas em 10% por nível.",
+            description: "Aumenta sua produção de bananas em 10% por nível.",
             category: "bananas",
-            maxLevel: 10,
-            unlockRequirements: [
-                (player) => player.bananas >= 1_000
-            ],
+            maxLevel: 5,
             parents: [],
-            baseCost: 1_500,
-            getCost: (level) => Math.floor(100 * Math.pow(2.4, level)), // cresce 20% por nível
+            unlockRequirements: [(player) => player.bananas >= 10_000],
+            baseCost: 500,
+            getCost: (level) => Math.floor(500 * Math.pow(1.8, level)),
             effect: (player, level) => {
-                const bonusPerLevel = 0.1;
-                player.globalProductionMultiplier = 1 + level * bonusPerLevel;
-                console.log(player.globalProductionMultiplier)
+                player.globalProductionMultiplier = 1 + level * 0.1;
             }
         },
         {
             id: "bananaBoost2",
             name: "Banana Boost II",
-            description: "Aumenta a produção de bananas em +20% por nível.",
+            description: "Aumenta sua produção de bananas em 20% por nível.",
             category: "bananas",
-            maxLevel: 10,
+            maxLevel: 5,
             parents: ["bananaBoost1"],
             unlockRequirements: [
-                (player) => player.getSkillById("bananaBoost1")?.level >= 10
+                (player) => player.getSkillById("bananaBoost1")?.level >= 5
             ],
-            baseCost: 500,
-            getCost: (level) => Math.floor(500 * Math.pow(3.1, level)),
+            baseCost: 2000,
+            getCost: (level) => Math.floor(2000 * Math.pow(2, level)),
             effect: (player, level) => {
-                const bonus = 0.2;
-                player.globalProductionMultiplier += bonus * level;
-                console.log(player.globalProductionMultiplier)
-
+                player.globalProductionMultiplier += level * 0.2;
+            }
+        },
+        {
+            id: "bananaBoost3",
+            name: "Banana Boost III",
+            description: "Aumenta produção de bananas em +30% por nível. Mais potente que Boost II.",
+            category: "bananas",
+            maxLevel: 5,
+            parents: ["bananaBoost2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("bananaBoost2")?.level >= 5
+            ],
+            baseCost: 3000,
+            getCost: (level) => Math.floor(3000 * Math.pow(2.5, level)),
+            effect: (player, level) => {
+                player.globalProductionMultiplier += level * 0.3;
+            }
+        },
+        {
+            id: "bananaEvo1",
+            name: "Banana Evolution",
+            description: "Evolução sutil que multiplica seus Banana Boosts anteriores.",
+            category: "bananas",
+            maxLevel: 1,
+            parents: ["bananaBoost2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("bananaBoost2")?.level >= 5
+            ],
+            baseCost: 1,
+            getCost: () => 1, // custo em prismáticas
+            effect: (player, level) => {
+                const current = player.globalProductionMultiplier || 1;
+                player.globalProductionMultiplier = current * 1.3;
+            }
+        },
+        {
+            id: "bananaEvo2",
+            name: "Banana Evolution II",
+            description: "Multiplica todos os Banana Boosts anteriores em +50% (prismáticas).",
+            category: "bananas",
+            maxLevel: 1,
+            parents: ["bananaBoost3"],
+            unlockRequirements: [
+                (player) => player.getSkillById("bananaBoost3")?.level >= 5
+            ],
+            baseCost: 2, // prismáticas
+            getCost: () => 2,
+            effect: (player, level) => {
+                const current = player.globalProductionMultiplier || 1;
+                player.globalProductionMultiplier = current * 1.5;
             }
         }
     ],
 
+    // ===================== CLIQUES =====================
     click: [
         {
             id: "clickBoost1",
-            name: "Click Boost",
-            description: "Valor do click aumentado em +1 por nível.",
+            name: "Click Boost I",
+            description: "Aumenta o valor de cada clique em +1.",
             category: "click",
-            maxLevel: 100,
-            unlocked: false,
+            maxLevel: 5,
             parents: [],
-            baseCost: 1_000,
-            getCost: (level) => Math.floor(100 * Math.pow(1.8, level)), // aumenta 10% por nível
+            unlockRequirements: [(player) => player.bananas >= 100],
+            baseCost: 100,
+            getCost: (level) => Math.floor(100 * Math.pow(1.5, level)),
             effect: (player, level) => {
                 const base = player.baseClickValue || 1;
                 player.clickValue = base + level;
             }
         },
         {
+            id: "clickBoost2",
+            name: "Click Boost II",
+            description: "Aumenta o valor do clique em +2.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["clickBoost1"],
+            unlockRequirements: [
+                (player) => player.getSkillById("clickBoost1")?.level >= 5
+            ],
+            baseCost: 500,
+            getCost: (level) => Math.floor(500 * Math.pow(1.8, level)),
+            effect: (player, level) => {
+                const base = player.baseClickValue || 1;
+                player.clickValue = base + 5 + level * 2;
+            }
+        },
+        {
+            id: "clickBoost3",
+            name: "Click Boost III",
+            description: "Aumenta o valor do clique manual em +5 por nível.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["clickBoost2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("clickBoost2")?.level >= 5
+            ],
+            baseCost: 5000,
+            getCost: (level) => Math.floor(5000 * Math.pow(2, level)),
+            effect: (player, level) => {
+                const base = player.baseClickValue || 1;
+                player.clickValue = base + 10 + level * 5;
+            }
+        },
+        {
             id: "critChanceBoost",
             name: "Critical Chance",
-            description: "Aumenta a chance de crítico do click em 1% por nível.",
+            description: "Aumenta a chance de acerto crítico em 1% por nível.",
             category: "click",
-            maxLevel: 50,
-            unlocked: false,
+            maxLevel: 10,
             parents: [],
-            baseCost: 2500,
-            getCost: (level) => Math.floor(2500 * Math.pow(1.12, level)), // cresce 12% por nível
+            unlockRequirements: [(player) => player.bananas >= 2000],
+            baseCost: 250,
+            getCost: (level) => Math.floor(250 * Math.pow(1.12, level)),
             effect: (player, level) => {
-                const baseChance = 0.04; // 4% inicial
-                player.critChance = baseChance + 0.01 * level;
-                if (player.critChance > 1) player.critChance = 1;
+                const baseChance = 0.04;
+                player.critChance = Math.min(baseChance + 0.01 * level, 1);
             }
         },
         {
             id: "critMultiplierBoost",
             name: "Critical Multiplier",
-            description: "Aumenta o multiplicador dos críticos em +0.1 por nível.",
+            description: "Aumenta o multiplicador de críticos em +0.1 por nível.",
             category: "click",
-            maxLevel: 50,
-            unlocked: false,
-            parents: [],
-            baseCost: 10000,
-            getCost: (level) => Math.floor(10000 * Math.pow(1.15, level)),
+            maxLevel: 10,
+            parents: ["critChanceBoost"],
+            unlockRequirements: [
+                (player) => player.getSkillById("critChanceBoost")?.level >= 5
+            ],
+            baseCost: 1000,
+            getCost: (level) => Math.floor(1000 * Math.pow(1.15, level)),
             effect: (player, level) => {
-                const baseMultiplier = 2;
-                player.critMultiplier = baseMultiplier + 0.1 * level;
+                player.critMultiplier = 2 + 0.1 * level;
             }
-        }
+        },
+        {
+            id: "autoClick1",
+            name: "Auto Click I",
+            description: "Habilita clique automático lento. Reduz o tempo com upgrades posteriores.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["clickBoost2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("clickBoost2")?.level >= 3
+            ],
+            baseCost: 1000,
+            getCost: (level) => Math.floor(1000 * Math.pow(2, level)),
+            effect: (player, level) => {
+                player.autoClickSpeed = Math.max(5 - level * 0.8, 0.5); // segundos por clique
+            }
+        },
+        {
+            id: "autoClick2",
+            name: "Auto Click II",
+            description: "Clique automático mais rápido. Reduz o tempo base e aumenta eficiência.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["autoClick1"],
+            unlockRequirements: [
+                (player) => player.getSkillById("autoClick1")?.level >= 5
+            ],
+            baseCost: 2000,
+            getCost: (level) => Math.floor(2000 * Math.pow(1.8, level)),
+            effect: (player, level) => {
+                player.autoClickSpeed = Math.max(3 - level * 0.4, 0.2);
+                player.autoClickMultiplier = 1 + 0.1 * level; // aumenta produção do auto click
+            }
+        },
+
+
     ],
 
+    // ===================== MINA =====================
     mine: [
         {
-            id: "mineEfficiency",
-            name: "Mine Efficiency",
-            description: "Aumenta produção da mina",
+            id: "mineEfficiency1",
+            name: "Mine Efficiency I",
+            description: "Aumenta a produção da Mina.",
             category: "mine",
-            maxLevel: 5,
-            parents: ["bananaBoost1"],
+            maxLevel: 3,
+            parents: ["bananaBoost2"],
             unlockRequirements: [
-                (player) => player.getSkillById("bananaBoost1")?.level >= 2
+                (player) => player.getSkillById("bananaBoost2")?.level >= 4
             ],
             baseCost: 2000,
             getCost: (level) => Math.floor(2000 * Math.pow(1.25, level)),
             effect: (player, level) => {
-                const base = player.mine?.baseMultiplier || 1;
+                const base = player.mine?.multiplier || 1;
                 player.mine.multiplier = base + 0.5 * level;
+            }
+        },
+        {
+            id: "mineEfficiency2",
+            name: "Mine Efficiency II",
+            description: "Aumenta a produção da mina ainda mais.",
+            category: "mine",
+            maxLevel: 3,
+            parents: ["mineEfficiency1"],
+            unlockRequirements: [
+                (player) => player.getSkillById("mineEfficiency1")?.level >= 3
+            ],
+            baseCost: 5000,
+            getCost: (level) => Math.floor(5000 * Math.pow(1.4, level)),
+            effect: (player, level) => {
+                const base = player.mine?.multiplier || 1;
+                player.mine.multiplier = base + 1 * level;
+            }
+        },
+        {
+            id: "mineAutomation",
+            name: "Mine Automation",
+            description: "Permite que a mina funcione sozinha por períodos automáticos. Reduz tempo com upgrades.",
+            category: "mine",
+            maxLevel: 5,
+            parents: ["mineEfficiency2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("mineEfficiency2")?.level >= 3
+            ],
+            baseCost: 3000,
+            getCost: (level) => Math.floor(3000 * Math.pow(2, level)),
+            effect: (player, level) => {
+                player.mine.autoMultiplier = 1 + 0.2 * level;
+                player.mine.autoInterval = Math.max(10 - level * 1.5, 1); // segundos
             }
         }
     ],
 
+    // ===================== RARES =====================
     rare: [
         {
-            id: "mysteryNode",
-            name: "???",
-            description: "???",
+            id: "prismaticReward1",
+            name: "Mysterious Reward",
+            description: "Receba 5 prismáticas como recompensa por desbloquear esta habilidade.",
             category: "rare",
             maxLevel: 1,
             parents: ["bananaBoost2"],
             unlockRequirements: [
-                (player) => player.getSkillById("bananaBoost2")?.level >= 2
+                (player) => player.getSkillById("bananaBoost2")?.level >= 5
             ],
             baseCost: 5000,
-            getCost: (level) => 5000,
+            getCost: () => 5000,
             effect: (player, level) => {
                 player.prismatics += 5;
+            }
+        },
+        {
+            id: "prismaticReward2",
+            name: "Prismatic Booster",
+            description: "Receba 10 prismáticas e multiplica efeitos das skills principais.",
+            category: "rare",
+            maxLevel: 1,
+            parents: ["bananaEvo2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("bananaEvo2")?.level >= 1
+            ],
+            baseCost: 5,
+            getCost: () => 5,
+            effect: (player, level) => {
+                player.prismatics += 10;
+                player.globalProductionMultiplier *= 1.2;
+                player.clickValue += 5;
             }
         }
     ]
 };
 
 
+
+// Cria a árvore de skills do player
 export function createSkillTree(player) {
     getAllSkills().forEach(skillData => {
         const node = new SkillNode(skillData);
@@ -144,6 +312,7 @@ export function createSkillTree(player) {
 
     // cria nodes de monkeys se houver
     createMonkeySkillNodes(player);
+    createMineSkillNodes(player);
 
     // garante categories atualizadas
     player.skillCategories = Object.keys(skillTreeData);

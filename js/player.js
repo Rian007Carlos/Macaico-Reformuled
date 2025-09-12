@@ -1,38 +1,56 @@
 import { SFX } from "./sfx/sfx.js";
+import { Mine } from "./Mine.js";
+import { UIUpdateType } from "./uiManager.js"; // para marcar updates
+
 SFX.register("denied", "../sfx/denied.m4a", 0.1);
 
-// import { SkillNode } from "./skillNode";
 export class Player {
     constructor(uiManager) {
-        this.uiManager = uiManager; // referência ao UIManager
+        this.uiManager = uiManager;
+
+        // Recursos
         this.bananas = 0;
         this.prismatics = 0;
+
+        // Produção
         this.bananasPerSecond = 0;
-        this.baseBananasPerSecond = this.bananasPerSecond || 0;
-        this.baseClickValue = this.clickValue || 1;
-        this.baseMineMultiplier = this.mine?.multiplier || 1;
         this.clickValue = 1;
         this.critChance = 0;
         this.critMultiplier = 0;
-        this.upgrades = [];
-        this.monkeys = [];
-        this.globalProductionMultiplier = 1;
-        this.productionMultiplier = 1;
+
+        // Unidades e upgrades
+        this.upgrades = [];  // lista de UpgradeMonkeys
+        this.monkeys = [];   // se for separado
         this.skills = [];
-        this.skillCategories = ["click", "bananas", "production", "mine", "lab", "forge", "multiplier", "monkeys", "rare"];
-        this.deck = [];
-        this.mine = { unlocked: false, level: 0, production: 0, multiplier: 0 };
+        this.skillCategories = [
+            "click", "bananas", "production", "mine",
+            "lab", "forge", "multiplier", "monkeys", "rare"
+        ];
+
+        // Estruturas
+        this.mine = new Mine();
         this.laboratory = { unlocked: false };
         this.forge = { unlocked: false };
+
+        // Multiplicadores globais
+        this.globalProductionMultiplier = 1;
+        this.productionMultiplier = 1;
+
+        // Outros
+        this.deck = [];
         this.startTime = Date.now();
         this.milestonesReached = {};
     }
 
-    addBananas(amount = 1, isCLick = false) {
-        // calcula o total incluindo crítico
+    getMonkeyByName(name) {
+        return this.upgrades.find(m => m.name === name);
+    }
+
+    // === Recursos comuns ===
+    addBananas(amount = 1) {
         let total = amount;
 
-        // acumula fracionário
+        // acumula frações para evitar perda
         this.bananasFraction = (this.bananasFraction || 0) + total;
         const whole = Math.floor(this.bananasFraction);
 
@@ -40,14 +58,14 @@ export class Player {
             this.bananas += whole;
             this.bananasFraction -= whole;
         }
-        this.refreshHUD();
-    }
 
+        this.refreshHUD(UIUpdateType.BANANA);
+    }
 
     spendBananas(amount) {
         if (this.bananas >= amount) {
             this.bananas -= amount;
-            this.refreshHUD();
+            this.refreshHUD(UIUpdateType.BANANA);
             return true;
         } else {
             SFX.play("denied");
@@ -57,37 +75,32 @@ export class Player {
 
     addPrismatics(amount) {
         this.prismatics += amount;
-        this.refreshHUD();
+        this.refreshHUD(UIUpdateType.BANANA);
     }
 
     spendPrismatics(amount) {
         if (this.prismatics >= amount) {
             this.prismatics -= amount;
-            this.refreshHUD();
+            this.refreshHUD(UIUpdateType.BANANA);
             return true;
         }
         return false;
     }
 
-    getTotalMonkeyproduction() {
-        const base = this.monkeys.reduce((sum, m) => sum + m.baseProduction, 0);
-        return base * this.globalProductionMultiplier;
+    // === Produção ===
+    getTotalMonkeyProduction() {
+        return this.upgrades.reduce((sum, m) => {
+            if (m.unlocked && m.level > 0 && typeof m.getProduction === "function") {
+                return sum + m.getProduction();
+            }
+            return sum;
+        }, 0) * this.globalProductionMultiplier;
     }
 
     recalculateBPS() {
-        let bps = 0;
+        let bps = this.getTotalMonkeyProduction();
 
-        this.upgrades.forEach(monkey => {
-            if (monkey.unlocked && monkey.level > 0 && typeof monkey.getProduction === "function") {
-                bps += monkey.getProduction();
-            }
-        });
-
-        if (this.mine?.unlocked) {
-            const mineProduction = (this.mine.production || 0) * (this.mine.level || 0) * (this.mine.multiplier || 1);
-            bps += mineProduction;
-        }
-
+        // multiplicadores globais
         bps *= this.productionMultiplier || 1;
         bps *= this.globalProductionMultiplier || 1;
 
@@ -95,11 +108,11 @@ export class Player {
 
         this.bananasPerSecond = bps;
 
-        // Atualiza HUD
-        this.refreshHUD();
-
+        // UI: só atualizar o HUD, não a lista inteira
+        this.refreshHUD(UIUpdateType.BANANA);
     }
 
+    // === Skills ===
     addSkillNode(skillNode) {
         this.skills.push(skillNode);
     }
@@ -108,23 +121,24 @@ export class Player {
         return this.skills.find(skill => skill.id === id);
     }
 
-    refreshHUD() {
+    // === HUD ===
+    refreshHUD(updateType = UIUpdateType.BANANA) {
         if (this.uiManager) {
-            this.uiManager.updateAll(this); // ⚡ Player avisa UIManager
+            this.uiManager.queueUIUpdate(updateType);
         }
     }
 
+    // === Reset ===
     reset() {
         this.bananas = 0;
         this.prismatics = 0;
         this.bananasPerSecond = 0;
         this.deck = [];
-        this.mine = { unlocked: false, level: 0, production: 0, multiplier: 0 };
+
+        this.mine = new Mine();
         this.laboratory = { unlocked: false };
         this.forge = { unlocked: false };
 
-        // Atualiza HUD completo
-        this.refreshHUD();
+        this.refreshHUD(UIUpdateType.BANANA);
     }
-
 }

@@ -1,4 +1,3 @@
-// SkillNode.js
 export class SkillNode {
     constructor({
         id,
@@ -27,11 +26,12 @@ export class SkillNode {
         this.getCost = (typeof getCost === 'function') ? getCost : null;
         this.baseCost = (typeof baseCost === 'number') ? baseCost : null;
         this.parents = parents;
-        this.unlocked = unlocked;
+        this._unlocked = unlocked;
+        this.targetMonkey = targetMonkey;
         Object.assign(this, rest);
     }
 
-    // compat com sua implementação antiga de unlocked baseada no targetMonkey
+    // compat: unlocked só é true se realmente já foi liberado
     get unlocked() {
         return this._unlocked ?? false;
     }
@@ -39,16 +39,11 @@ export class SkillNode {
         this._unlocked = value;
     }
 
-    // utilitários de custo (públicos)
+    // --- custos ---
     hasCost() {
         return (typeof this.getCost === 'function') || (typeof this.baseCost === 'number');
     }
 
-    /**
-     * Retorna o custo para o nível passado (por padrão usa this.level).
-     * Retorna `null` se não existir custo definido.
-     * Observação: se você quer comportamento de escala, passe um getCost na criação do nó.
-     */
     getNextCost(level = this.level) {
         if (typeof this.getCost === 'function') {
             try {
@@ -64,42 +59,72 @@ export class SkillNode {
         return null;
     }
 
+    // --- requisitos ---
     canUnlock(player) {
-        return this.unlockRequirements.every(fn => fn(player));
+        return this.unlockRequirements.every((fn, i) => {
+            let result = false;
+            try {
+                result = fn(player);
+            } catch (e) {
+                console.error(`[SkillNode ${this.id}] Erro em unlockRequirement[${i}]`, e);
+            }
+            console.log(
+                `[SkillNode ${this.id}] Req[${i}] ->`,
+                result,
+                fn.toString(),
+                " PlayerState:",
+                {
+                    skills: player.skills?.map(s => ({ id: s.id, level: s.level })),
+                    monkeys: player.upgradeMonkeys?.map(m => ({ name: m.name, level: m.level, unlocked: m.unlocked }))
+                }
+            );
+            return result;
+        });
     }
 
+    // --- desbloqueio ---
     unlock(player, extra = null) {
         if (!this.unlocked && this.canUnlock(player)) {
-            const cost = this.getNextCost(this.level); // cost pode ser null
-            if (cost !== null) {
-                if (!player.spendBananas(cost)) return false;
-            }
+            const cost = this.getNextCost(this.level);
+            if (cost !== null && !player.spendBananas(cost)) return false;
+
             this.unlocked = true;
             this.level = 1;
+
+            if (this.targetMonkey) {
+                this.targetMonkey.unlocked = true;
+            }
+
             if (this.effect) this.effect(player, this.level, extra);
+
             return true;
         }
         return false;
     }
 
+    // --- upgrade ---
     upgrade(player, uiManager, extra = null) {
-        if (!this.unlocked) return false;
-        if (this.level >= this.maxLevel) return false;
+        if (!this.unlocked || this.level >= this.maxLevel) return false;
 
         const cost = this.getNextCost(this.level);
-        if (cost !== null) {
-            if (!player.spendBananas(cost)) return false;
-        }
+        if (cost !== null && !player.spendBananas(cost)) return false;
 
         this.level++;
+
         if (this.effect) this.effect(player, this.level, extra);
         if (player.recalculateBPS) player.recalculateBPS();
 
         if (uiManager && this.targetMonkey) {
             const monkey = this.targetMonkey;
-            if (monkey && uiManager.updateMonkeyDescription) uiManager.updateMonkeyDescription(monkey);
-            if (uiManager.updateAll) uiManager.updateAll(player);
+
+            if (!document.querySelector(`.monkey[data-monkey="${monkey.name}"]`)) {
+                uiManager.renderMonkey(monkey);
+            }
+
+            uiManager.updateMonkeyDescription(monkey);
+            uiManager.checkAllUnlocks();
         }
+
         return true;
     }
 

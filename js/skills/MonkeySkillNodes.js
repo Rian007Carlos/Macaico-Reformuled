@@ -1,71 +1,48 @@
 import { SkillNode } from "./SkillNode.js";
 import { upgradeMonkeys } from "../Monkey.js";
-import { formatNumber } from "../utils.js";
+import { UIUpdateType } from "../uiManager.js";
 
 export function createMonkeySkillNodes(player) {
     upgradeMonkeys.forEach(monkey => {
-        // if (!monkey.unlocked) return;
-
         const node = new SkillNode({
             id: `skill_${monkey.name}`,
             name: `${monkey.name} Mastery`,
-            description: `Aumenta a produção do ${monkey.name} em +10%`,
+            description: `Aumenta a produção do ${monkey.name} em +10% por nível.`,
             category: "monkeys",
             level: 0,
             maxLevel: 10,
             targetMonkey: monkey,
             baseCost: monkey.skillTreeBaseCost || 25,
-
-            // custo polinomial baseado no nível do nó
-            getCost: function (level) {
-                const base = this.baseCost || 25;
-                const nextLevel = level + 1;
-                const thresholds = [
-                    { level: 0, p: 1.1 },
-                    { level: 11, p: 2.3 },
-                    { level: 26, p: 3.4 },
-                    { level: 51, p: 4.5 },
-                    { level: 100, p: 5.6 }
-                ];
-                let currentThreshold = thresholds[0];
-                let nextThreshold = thresholds[1];
-
-                for (let i = 0; i < thresholds.length - 1; i++) {
-                    if (level >= thresholds[i].level && level < thresholds[i + 1].level) {
-                        currentThreshold = thresholds[i];
-                        nextThreshold = thresholds[i + 1];
-                    } else {
-                        break;
-                    }
-                }
-
-                const levelIsInRange = nextThreshold.level - currentThreshold.level;
-                const levelProgress = level - currentThreshold.level;
-
-                const p = currentThreshold.p + ((nextThreshold.p - currentThreshold.p) / levelIsInRange) * levelProgress;
-
-
-                return Math.floor(base * Math.pow(nextLevel, p));
-            },
-
+            unlockRequirements: Array.isArray(monkey.unlockRequirements) ? monkey.unlockRequirements : [],
             effect: (player, level) => {
-                const monkeyObj = player.upgrades.find(m => m.name === monkey.name);
-
+                // atualiza o monkey real
+                const monkeyObj = monkey;
                 if (!monkeyObj) return;
-
                 monkeyObj.multiplier = 1 + 0.1 * level;
                 player.recalculateBPS();
 
+                // atualiza UI
                 if (player.uiManager) {
-                    player.uiManager.updateMonkeyDescription(monkeyObj);
-                    player.uiManager.updateAll(player);
+                    player.uiManager.queueUIUpdate(UIUpdateType.MONKEY);
+                    player.uiManager.queueUIUpdate(UIUpdateType.BANANA);
                 }
             }
-
-
         });
+
 
         player.addSkillNode(node);
 
+    });
+
+
+}
+
+// checa e aplica unlocks de todos os monkeys via seus nodes
+export function checkMonkeyUnlocks(player) {
+    player.upgrades.forEach(monkey => {
+        const node = monkey.skillNode;
+        if (node && !monkey.unlocked && node.canUnlock(player)) {
+            node.unlock(player);
+        }
     });
 }

@@ -5,10 +5,14 @@ import { Mine } from './Mine.js';
 import { SFX } from './sfx/sfx.js';
 import { bgmManager } from './sfx/bgmManager.js';
 import { Telemetry } from './telemetry.js';
+import { checkMonkeyUnlocks } from './skills/MonkeySkillNodes.js';
 
 
+// --- Registro de sons ---
 SFX.register("bananaClick", "../sfx/banana_splash.m4a", 0.2);
 SFX.register("denied", "../sfx/denied.m4a", 0.1);
+
+// --- Registro de BGM ---
 bgmManager.register("good night lofi", new Audio("../music/good-night-lofi.mp3"));
 bgmManager.register("cheeky monkey", new Audio("../music/cheeky-monkey-392394.mp3"));
 bgmManager.register("lost in dreams", new Audio("../music/lost-in-dreams.mp3"));
@@ -17,8 +21,18 @@ bgmManager.register("as cool as a cucumber", new Audio("../music/as-cool-as-a-cu
 bgmManager.register("animal", new Audio("../music/animal-252993.mp3"));
 bgmManager.register("rain drops on the banana leaves", new Audio("../music/rain-drops-on-the-banana-leaves-south-china-folk-music-167331.mp3"));
 
-// bgmManager.playBGM();
+// bgmManager.playBGM(); // opcional, disparar manualmente depois
 
+// --- Tipos de atualização para UI Loop ---
+export const UIUpdateType = {
+    BANANA: "banana",
+    MONKEY: "monkey",
+    SKILL: "skill",
+    PLAYLIST: "playlist",
+    BUILDING: "building", // futuro uso: Mine, Laboratory, Forge
+};
+
+// --- UIManager ---
 export class UIManager {
     constructor(player, config) {
         this.player = player;
@@ -26,183 +40,159 @@ export class UIManager {
         this.elements = config;
         this.elements.upgrades = config.upgrades || [];
         this.elements.buildings = config.buildings || [];
+        this.playlistInterval = null;
+        this.pendingUpdates = new Set();
+
         this.GameStateEvents();
         this.ClickOnBanana();
-        this.playlistInterval = null;
     }
 
+    // =========================
+    // 1️⃣ Click na banana
+    // =========================
     ClickOnBanana() {
-        if (this.elements.bananaButton) {
-            this.elements.bananaButton.addEventListener('click', () => {
-                SFX.play("bananaClick");
+        const bananaBtn = document.getElementById("banana-button");
+        if (!bananaBtn) return;
 
-                let isCrit = Math.random() < this.player.critChance;
-                let clickValue = this.player.clickValue;
+        bananaBtn.addEventListener("click", (event) => {
+            SFX.play("bananaClick");
 
-                if (isCrit && this.player.critMultiplier <= 1) {
-                    isCrit = false;
-                }
-                if (isCrit) {
-                    clickValue *= this.player.critMultiplier;
-                }
+            let isCrit = Math.random() < this.player.critChance;
+            let clickValue = this.player.clickValue;
 
-                this.player.addBananas(clickValue, true);   // usa SEMPRE o valor calculado
-                this.createFloatingText(clickValue, isCrit);
-                this.checkAllUnlocks();
-            });
-        }
+            if (isCrit && this.player.critMultiplier > 1) {
+                clickValue *= this.player.critMultiplier;
+            } else {
+                isCrit = false;
+            }
+
+            this.player.addBananas(100000000000000000000, true);
+            this.createFloatingText(clickValue, isCrit);
+            this.updateBananaDisplay(this.player.bananas);
+            this.queueUIUpdate(UIUpdateType.SKILL);
+        });
     }
+
 
     createFloatingText(value, isCrit) {
         const container = document.getElementById("banana-container");
-        const text = document.createElement("div");
+        if (!container) return;
 
+        const text = document.createElement("div");
         text.className = "floating-text" + (isCrit ? " crit" : "");
         text.innerText = `+${Math.floor(value)}🍌`;
 
         const offsetX = (Math.random() - 0.5) * 200;
         const offsetY = (Math.random() - 0.5) * 50;
-
         text.style.left = `calc(50% + ${offsetX}px)`;
         text.style.top = `calc(50% + ${offsetY}px)`;
         text.style.position = "absolute";
 
         container.appendChild(text);
 
-        setTimeout(() => {
-            text.remove();
-        }, 1000);
+        setTimeout(() => text.remove(), 1000);
     }
-
 
     showDeniedFeedBack(element, duration = 500) {
         if (!element) return;
-
         element.classList.add("denied");
-        setTimeout(() => {
-            element.classList.remove("denied");
-        }, duration);
+        setTimeout(() => element.classList.remove("denied"), duration);
     }
 
-    handlePurchase(actionCallback, element) {
-        const success = actionCallback(); // retorna true/false
-        if (!success) this.showDeniedFeedBack(element);
-        return success;
-    }
-
+    // =========================
+    // 2️⃣ Monkeys (Upgrades)
+    // =========================
     renderMonkey(monkey) {
+
         const container = document.getElementById('upgrades-container');
-        const buyBtn = document.createElement('button');
-        const description = document.createElement('span');
-
-
-
-        if (!container) return;
-        if (container.querySelector(`[data-monkey="${monkey.name}"]`)) return;
+        if (!container || container.querySelector(`[data-monkey="${monkey.name}"]`)) return;
 
         const monkeyEl = document.createElement('div');
         monkeyEl.classList.add('monkey');
         monkeyEl.setAttribute('data-monkey', monkey.name);
 
+        const description = document.createElement('span');
+        description.classList.add('description');
+        description.textContent = `Nome: ${monkey.name} | Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())} bananas/s`;
         monkeyEl.appendChild(description);
 
-        description.classList.add('description');
-        description.textContent = `Nome: ${monkey.name}
-        Custo: ${formatNumber(monkey.cost)} 
-        Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())} bananas/s `;
-        monkeyEl.appendChild(buyBtn);
-
+        const buyBtn = document.createElement('button');
         buyBtn.textContent = "Comprar";
-
         buyBtn.addEventListener('click', () => {
             const success = monkey.buy(this.player, this);
             if (!success) this.showDeniedFeedBack(buyBtn);
 
-
+            // Atualiza apenas UI, unlocks serão processados pelo loop
+            this.queueUIUpdate(UIUpdateType.MONKEY);
+            this.queueUIUpdate(UIUpdateType.BANANA);
         });
 
+        monkeyEl.appendChild(buyBtn);
         container.appendChild(monkeyEl);
     }
 
+    updateMonkeyUI(monkey) {
+        const monkeyEl = document.querySelector(`.monkey[data-monkey="${monkey.name}"]`);
+        if (!monkeyEl) return;
+
+        const description = monkeyEl.querySelector('.description');
+        if (!description) return;
+
+        description.textContent = `Nome: ${monkey.name} | Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())} bananas/s`;
+    }
+
+
     clearMonkeys() {
         const container = document.getElementById('upgrades-container');
-        if (container) {
-            container.innerHTML = '';
-        }
+        if (container) container.innerHTML = '';
     }
 
     renderAllUnlockedMonkeys() {
-        this.elements.upgrades.forEach(monkey => {
-            if (monkey.unlocked) {
-                this.renderMonkey(monkey);
-            }
-        })
+        checkMonkeyUnlocks(this.player);
     }
 
     updateMonkeyDescription(monkey) {
         const monkeyEl = document.querySelector(`.monkey[data-monkey="${monkey.name}"]`);
-        if (monkeyEl) {
-            const description = monkeyEl.querySelector('.description');
-            if (description) {
-                description.textContent = `Nome: ${monkey.name} | 
-                Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())}  bananas/s `;
-            }
-        }
+        if (!monkeyEl) return;
+
+        const description = monkeyEl.querySelector('.description');
+        if (!description) return;
+
+        description.textContent = `Nome: ${monkey.name} | Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())} bananas/s`;
     }
 
     updateBananasFromMonkeys() {
         let total = 0;
-
         this.elements.upgrades.forEach(monkey => {
-            if (monkey.unlocked) {
-                total += monkey.getProduction(); // pode multiplicar por tickRate se for fracionado
-            }
+            if (monkey.unlocked) total += monkey.getProduction();
         });
-
         total *= (this.player.globalProductionMultiplier || 1);
-
         this.player.addBananas(total);
+        this.queueUIUpdate(UIUpdateType.BANANA);
     }
 
-    // Atualiza ou renderiza todos os upgrades desbloqueados
     checkAllUnlocks() {
         this.elements.upgrades.forEach(monkey => {
-            const unlocked = monkey.hasUnlock({
-                player: this.player,
-                upgrades: this.elements.upgrades,
-                uiManager: this
-            });
-
-
-            if (unlocked) {
-                this.renderMonkey(monkey);
-            } else {
-                // opcional: remover monkey da tela se travou/desbloqueio reverso
-            }
+            const node = monkey.skillNode;
+            if (node) node.unlock(this.player); // tenta desbloquear
+            if (monkey.unlocked) this.renderMonkey(monkey);
+            // console.log(monkey.canUnlock(player))
         });
 
-        // Verifica prédios
-        if (this.player.mine.unlocked) {
-            // this.renderMine();
-        }
-
-
-        if (this.player.laboratory?.unlocked) {
-            this.renderLaboratory();
-        }
-
-        if (this.player.forge?.unlocked) {
-            this.renderForge();
-        }
+        // --- Buildings desbloqueadas ---
+        if (this.player.mine?.unlocked) this.renderMine();
+        if (this.player.laboratory?.unlocked) this.renderLaboratory();
+        if (this.player.forge?.unlocked) this.renderForge();
     }
 
+    // =========================
+    // 3️⃣ HUD
+    // =========================
     updateHUDCounter(counterElement, amount) {
-        if (counterElement) {
-            counterElement.textContent = formatNumber(amount);
-        }
+        if (counterElement) counterElement.textContent = formatNumber(amount);
     }
 
-    updateAll(player = this.player) {
+    updateAllCounters(player = this.player) {
         this.updateBananaDisplay(player.bananas);
         this.updatePrismaticDisplay(player.prismatics);
         this.updateBananasPerSecondDisplay(player.bananasPerSecond);
@@ -213,62 +203,62 @@ export class UIManager {
     }
 
     updatePrismaticDisplay(amount) {
-        if (this.elements.prismaticsCount) this.elements.prismaticsCount.textContent = formatNumber(amount);
+        if (this.elements.prismaticCount) this.elements.prismaticCount.textContent = formatNumber(amount);
     }
 
     updateBananasPerSecondDisplay(amount) {
         if (this.elements.bananasPerSecond) this.elements.bananasPerSecond.textContent = formatNumber(amount);
     }
-    // Renderiza a Mina
-    // Dentro da classe UIManager
-    // renderMine() {
-    //     const container = document.getElementById('buildings-container');
-    //     if (!container) return;
 
-    //     // Evita duplicar
-    //     if (this.player.mine.unlocked && !container.querySelector('#mine')) {
-    //         const mineEl = document.createElement('div');
-    //         mineEl.id = 'mine';
-    //         mineEl.classList.add('building');
+    // =========================
+    // 4️⃣ Buildings
+    // =========================
+    renderMine() {
+        const container = document.getElementById('buildings-container');
+        if (!container || !this.player.mine?.unlocked) return;
+        if (container.querySelector('#mine')) return; // evita duplicar
 
-    //         const info = document.createElement('span');
-    //         info.classList.add('mine-info');
-    //         info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
+        const mineEl = document.createElement('div');
+        mineEl.id = 'mine';
+        mineEl.classList.add('building');
 
-    //         const mininingButton = document.createElement('button');
-    //         mininingButton.textContent = "Mineirar";
-    //         mininingButton.addEventListener('click', () => {
-    //             if (Mine.upgrade()) {
-    //                 this.updateMineUI();
-    //             }
-    //         });
+        const info = document.createElement('span');
+        info.classList.add('mine-info');
+        info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
 
-    //         mineEl.appendChild(info);
-    //         mineEl.appendChild(mininingButton);
-    //         container.appendChild(mineEl);
-    //     }
-    // }
+        const miningBtn = document.createElement('button');
+        miningBtn.textContent = "Mineirar";
+        miningBtn.addEventListener('click', () => {
+            if (this.player.mine.upgrade?.()) this.updateMineUI();
+        });
+
+        mineEl.appendChild(info);
+        mineEl.appendChild(miningBtn);
+        container.appendChild(mineEl);
+    }
 
     updateMineUI() {
         const info = document.querySelector('#mine .mine-info');
-        if (info) {
-            info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
-        }
+        if (info) info.textContent = `⛏️ Mina - Nível: ${this.player.mine.level}`;
     }
 
     clearBuildings() {
         const container = document.getElementById('buildings-container');
-        if (container) {
-            container.innerHTML = '';
-        }
+        if (container) container.innerHTML = '';
     }
 
+    // Pontos de extensão futura: renderLaboratory(), renderForge()
+    renderLaboratory() { /* similar à renderMine */ }
+    renderForge() { /* similar à renderMine */ }
+
+    // =========================
+    // 5️⃣ Skill Tree
+    // =========================
     renderSkillTree() {
         const container = document.getElementById("skills-container");
         if (!container) return;
         container.innerHTML = '';
 
-        // segurança: garante arrays válidos
         const skills = Array.isArray(this.player?.skills) ? this.player.skills : [];
         const categories = Array.isArray(this.player?.skillCategories) && this.player.skillCategories.length > 0
             ? this.player.skillCategories
@@ -286,86 +276,110 @@ export class UIManager {
             categoryNodes.classList.add("category__nodes");
             catDiv.appendChild(categoryNodes);
 
-            skills
-                .filter(skill => skill && skill.category === category)
-                .forEach(skill => {
-                    const skillEl = document.createElement("div");
-                    const levelEl = document.createElement("span");
-                    const nameEl = document.createElement("span");
-                    const descriptionEl = document.createElement("p");
-                    const costEl = document.createElement("span"); // criado sempre
+            skills.filter(skill => skill?.category === category).forEach(skill => {
+                const skillEl = document.createElement("div");
+                skillEl.classList.add("skill-node");
 
-                    skillEl.classList.add("skill-node");
+                const nameEl = document.createElement("span");
+                nameEl.classList.add("skill-name");
+                nameEl.textContent = skill.unlocked ? skill.name : "???";
 
-                    nameEl.classList.add("skill-name");
-                    nameEl.textContent = skill.unlocked ? skill.name : "???";
+                const levelEl = document.createElement("span");
+                levelEl.classList.add("skill-level");
+                levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
 
-                    descriptionEl.textContent = skill.unlocked ? skill.description : "???";
+                const descriptionEl = document.createElement("p");
+                descriptionEl.textContent = skill.unlocked ? skill.description : "???";
 
-                    levelEl.classList.add("skill-level");
-                    levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
+                const costEl = document.createElement("span");
+                if (skill.hasCost?.()) {
+                    costEl.classList.add("skill-cost");
+                    costEl.textContent = `Custo: ${formatNumber(skill.getNextCost(skill.level))} bananas`;
+                }
 
-                    skillEl.appendChild(nameEl);
-                    skillEl.appendChild(levelEl);
-                    skillEl.appendChild(descriptionEl);
+                const btn = document.createElement("button");
+                btn.textContent = skill.unlocked ? "Atualizar" : "Desbloquear";
+                btn.addEventListener("click", () => {
+                    let success = !skill.unlocked ? skill.unlock(this.player) : skill.upgrade(this.player, this);
+                    if (!success) this.showDeniedFeedBack(btn);
 
-                    // dentro de renderSkillTree, para exibir custo:
-                    if (skill.hasCost && skill.hasCost()) {
-                        costEl.classList.add("skill-cost");
-                        const lvl = (typeof skill.level === 'number') ? skill.level : 0;
-                        const nextCost = skill.getNextCost(lvl);
-                        costEl.textContent = `Custo: ${formatNumber(nextCost)} bananas`;
-                        skillEl.appendChild(costEl);
-                    }
 
-                    const btn = document.createElement("button");
-                    btn.textContent = skill.unlocked ? "Atualizar" : "Desbloquear";
-
-                    btn.addEventListener("click", () => {
-                        let success = false;
-                        if (!skill.unlocked) {
-                            success = skill.unlock(this.player);
-                        } else {
-                            success = skill.upgrade(this.player, this);
-                        }
-
-                        if (!success) {
-                            this.showDeniedFeedBack(btn);
-                        }
-
-                        // Atualiza só este node
-                        levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
-                        nameEl.textContent = skill.unlocked ? skill.name : "???";
-                        descriptionEl.textContent = skill.unlocked ? skill.description : "???";
-                        // depois do action:
-                        if (skill.hasCost && skill.hasCost()) {
-                            const lvl = (typeof skill.level === 'number') ? skill.level : 0;
-                            costEl.textContent = `Custo: ${formatNumber(skill.getNextCost(lvl))} bananas`;
-                        } else {
-                            costEl.textContent = ''; // ou remova o elemento
-                        }
-                        btn.textContent = skill.unlocked ? "Atualizar" : "Desbloquear";
-
-                        this.updateAll();
-                    });
-
-                    skillEl.appendChild(btn);
-                    categoryNodes.appendChild(skillEl);
+                    this.updateSkillNode(skill, { nameEl, levelEl, descriptionEl, costEl, btn });
+                    // Refatorado: remove updates diretas, deixa o UI loop atualizar
+                    this.queueUIUpdate(UIUpdateType.BANANA);
+                    this.queueUIUpdate(UIUpdateType.MONKEY);
                 });
+
+                skillEl.append(nameEl, levelEl, descriptionEl, costEl, btn);
+                categoryNodes.appendChild(skillEl);
+            });
 
             container.appendChild(catDiv);
         });
     }
 
+    updateSkillTreeUI(player) {
+        player.skills.forEach(skill => {
+            const nodeEl = document.getElementById(`skill-${skill.id}`);
+            if (!nodeEl) return;
 
+            // locked/unlocked
+            nodeEl.classList.toggle("locked", !skill.unlocked);
+            nodeEl.classList.toggle("unlocked", skill.unlocked);
+
+            // mostrar nível
+            const levelEl = nodeEl.querySelector(".skill-level");
+            if (levelEl) {
+                levelEl.textContent = `Lvl ${skill.level}`;
+            }
+
+            // custo dinâmico
+            const costEl = nodeEl.querySelector(".skill-cost");
+            if (costEl && skill.hasCost) {
+                costEl.textContent = `Custo: ${skill.getNextCost(skill.level)}`;
+            }
+
+            // descrição
+            const descEl = nodeEl.querySelector(".skill-description");
+            if (descEl) {
+                descEl.textContent = skill.getDescription(skill.level);
+            }
+        });
+    }
+
+
+    updateSkillNode(skill, elements) {
+        // elements = { nameEl, levelEl, descriptionEl, costEl, btn }
+        const { nameEl, levelEl, descriptionEl, costEl, btn } = elements;
+
+        if (!nameEl || !levelEl || !descriptionEl || !btn) return;
+
+        nameEl.textContent = skill.unlocked ? skill.name : "???";
+        levelEl.textContent = `Lv ${skill.level}/${skill.maxLevel}`;
+        descriptionEl.textContent = skill.unlocked ? skill.description : "???";
+
+        if (skill.hasCost && skill.hasCost()) {
+            const lvl = (typeof skill.level === 'number') ? skill.level : 0;
+            costEl.textContent = `Custo: ${formatNumber(skill.getNextCost(lvl))} bananas`;
+        } else {
+            costEl.textContent = '';
+        }
+
+        btn.textContent = skill.unlocked ? "Atualizar" : "Desbloquear";
+
+        this.updateAllCounters(); // atualiza contadores globais
+    }
+
+
+    // =========================
+    // 6️⃣ Playlist / BGM
+    // =========================
     renderPlaylist() {
         const playlistContainer = document.getElementById("playlist-container");
         const playlistActions = document.getElementById("playlist-actions");
         const progressContainer = document.getElementById("playlist-progress");
-
         if (!playlistContainer || !playlistActions || !progressContainer) return;
 
-        // --- Nome da música (apenas se não existir) ---
         let currentMusic = document.getElementById("current-music");
         if (!currentMusic) {
             currentMusic = document.createElement("span");
@@ -374,8 +388,7 @@ export class UIManager {
             playlistContainer.appendChild(currentMusic);
         }
 
-        // --- Botões ---
-        if (!playlistActions.querySelector("button")) { // evita duplicar
+        if (!playlistActions.querySelector("button")) {
             const previousButton = document.createElement("button");
             previousButton.textContent = "<<";
             previousButton.onclick = () => { bgmManager.previous(); this.updatePlaylistUI(); };
@@ -392,11 +405,7 @@ export class UIManager {
             nextButton.textContent = ">>";
             nextButton.onclick = () => { bgmManager.next(); this.updatePlaylistUI(); };
 
-            playlistActions.appendChild(previousButton);
-            playlistActions.appendChild(playPauseButton);
-            playlistActions.appendChild(nextButton);
-
-            // slider volume
+            // volume
             const volumeSlider = document.createElement("input");
             volumeSlider.type = "range";
             volumeSlider.min = 0;
@@ -404,10 +413,10 @@ export class UIManager {
             volumeSlider.step = 0.01;
             volumeSlider.value = bgmManager.defaltVolume;
             volumeSlider.oninput = e => bgmManager.setVolume(parseFloat(e.target.value));
-            playlistActions.appendChild(volumeSlider);
+
+            playlistActions.append(previousButton, playPauseButton, nextButton, volumeSlider);
         }
 
-        // --- Barra de progresso ---
         let progressBar = document.getElementById("bgm-progress");
         if (!progressBar) {
             progressBar = document.createElement("progress");
@@ -417,112 +426,111 @@ export class UIManager {
             progressContainer.appendChild(progressBar);
         }
 
-        // Atualiza barra a cada 200ms
         clearInterval(this.playlistInterval);
         this.playlistInterval = setInterval(() => {
             if (bgmManager.currentTrack) {
                 progressBar.value = bgmManager.currentTrack.currentTime / bgmManager.currentTrack.duration || 0;
-                this.updatePlaylistUI(); // atualiza nome e botão play/pause
+                this.updatePlaylistUI();
             }
         }, 200);
     }
 
-    // Atualiza nome e estado do play/pause sem recriar tudo
     updatePlaylistUI() {
         const currentMusic = document.getElementById("current-music");
         const playPauseButton = document.querySelector("#playlist-actions button:nth-child(2)");
         if (currentMusic) currentMusic.textContent = bgmManager.getCurrentTrackName() || "Nenhuma música";
         if (playPauseButton) playPauseButton.textContent = bgmManager.isPlaying() ? "Pause" : "Play";
 
-        // verifica se precisa animar
-        if (currentMusic.scrollWidth > currentMusic.clientWidth) {
-            currentMusic.classList.add("scroll");
-        } else {
-            currentMusic.classList.remove("scroll");
-        }
+        if (currentMusic.scrollWidth > currentMusic.clientWidth) currentMusic.classList.add("scroll");
+        else currentMusic.classList.remove("scroll");
     }
 
-
-
-    // SAVE / LOAD / RESET
+    // =========================
+    // 7️⃣ Save / Load / Reset
+    // =========================
     GameStateEvents() {
-
-
-        // Botão de carregar
         if (this.elements.loadButton) {
             this.elements.loadButton.addEventListener('click', () => {
-                GameState.load(this.player, this.elements.upgrades, this.elements.buildings);
-                this.checkAllUnlocks(); // garante que os macacos desbloqueados apareçam
-                this.renderAllUnlockedMonkeys();
-                this.updateAll();        // atualiza HUD
+                GameState.load(this.player, this.elements.upgrades, this.elements.buildings, this);
+                this.queueUIUpdate(UIUpdateType.MONKEY);
+                this.queueUIUpdate(UIUpdateType.BANANA);
+                this.queueUIUpdate(UIUpdateType.SKILL);
+                this.queueUIUpdate(UIUpdateType.BUILDING);
             });
         }
 
-        // Botão de salvar
         if (this.elements.saveButton) {
             this.elements.saveButton.addEventListener('click', () => {
                 GameState.save(this.player, this.elements.upgrades, this.elements.buildings);
             });
         }
 
-        // Botão de resetar
-
         if (this.elements.resetButton) {
             this.elements.resetButton.addEventListener('click', () => {
                 GameState.reset(this.player, this.elements.upgrades, this.elements.buildings, this);
-                this.clearMonkeys();
-                this.clearBuildings();
-                this.checkAllUnlocks();
-                this.renderAllUnlockedMonkeys();
-
-
+                this.queueUIUpdate(UIUpdateType.MONKEY);
+                this.queueUIUpdate(UIUpdateType.BUILDING);
+                this.queueUIUpdate(UIUpdateType.BANANA);
+                this.queueUIUpdate(UIUpdateType.SKILL);
             });
         }
 
-        // Botão de print manual de telemetria
         if (this.elements.telemetryButtonContainer) {
             const printBtn = document.createElement("button");
             printBtn.textContent = "Print Telemetry";
-            printBtn.addEventListener("click", () => {
-                this.telemetry.printNow();
-            });
+            printBtn.addEventListener("click", () => this.telemetry.printNow());
             this.elements.telemetryButtonContainer.appendChild(printBtn);
         }
-
     }
 
-    initUI() {
+    // =========================
+    // 8️⃣ UI Loop e Game Loop
+    // =========================
 
-        this.clearMonkeys();             // limpa o container
-        this.elements.upgrades.forEach(monkey => {
-            if (monkey.unlocked) {
-                this.renderMonkey(monkey);
-            }
-        });
-        // Atualiza HUD
-        this.renderPlaylist();
-        this.checkAllUnlocks();
-        this.renderAllUnlockedMonkeys();
+    queueUIUpdate(updateType) {
+        this.pendingUpdates.add(updateType);
     }
 
+    startUIRenderLoop() {
+        const fps = 30;
+        setInterval(() => {
+            if (this.pendingUpdates.size === 0) return;
 
-    showReloadWarning() {
-        const warning = document.createElement('div');
-        warning.textContent = "⚠️ NÃO RECARREGUE A PÁGINA! O jogo salva automaticamente.";
-        warning.style.color = 'red';
-        warning.style.fontWeight = 'bold';
-        warning.style.marginBottom = '10px';
-        document.body.prepend(warning);
+            this.pendingUpdates.forEach(updateType => {
+                switch (updateType) {
+                    case UIUpdateType.MONKEY:
+                        checkMonkeyUnlocks(this.player); // garante unlocks antes de render
+                        this.elements.upgrades.forEach(monkey => {
+                            if (monkey.unlocked) {
+                                if (!document.querySelector(`.monkey[data-monkey="${monkey.name}"]`)) {
+                                    this.renderMonkey(monkey);
+                                } else {
+                                    this.updateMonkeyUI(monkey);
+                                }
+                            }
+                        });
+                        break;
+                    case UIUpdateType.SKILL: this.renderSkillTree(); break;
+                    case UIUpdateType.PLAYLIST: this.renderPlaylist(); break;
+                    case UIUpdateType.BUILDING:
+                        if (this.player.mine?.unlocked) this.renderMine();
+                        if (this.player.laboratory?.unlocked) this.renderLaboratory();
+                        if (this.player.forge?.unlocked) this.renderForge();
+                        break;
+                }
+            });
+
+            this.pendingUpdates.clear();
+        }, 1000 / fps);
     }
-
     startGameLoop() {
-        const tickRate = 1000; // 1 segundo por tick
+        const tickRate = 1000;
         setInterval(() => {
             this.updateBananasFromMonkeys();
             this.telemetry.tick();
-            this.updateAll(); // atualiza HUD
-
+            this.updateAllCounters();
         }, tickRate);
     }
+
 
 }
