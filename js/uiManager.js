@@ -66,7 +66,7 @@ export class UIManager {
                 isCrit = false;
             }
 
-            this.player.addBananas(100000000000000000000, true);
+            this.player.addBananas(clickValue, true);
             this.createFloatingText(clickValue, isCrit);
             this.updateBananaDisplay(this.player.bananas);
             this.queueUIUpdate(UIUpdateType.SKILL);
@@ -98,6 +98,47 @@ export class UIManager {
         element.classList.add("denied");
         setTimeout(() => element.classList.remove("denied"), duration);
     }
+
+
+    // =========================
+    // Auto Clicker Animation
+    // =========================
+    spawnAutoClickAnimation(clicker) {
+        const banana = document.getElementById("banana-button");
+        const container = document.getElementById("banana-container");
+        if (!banana || !container || !clicker.element) return;
+
+        const bananaRect = banana.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        const centerX = bananaRect.left + bananaRect.width / 2 - containerRect.left;
+        const centerY = bananaRect.top + bananaRect.height / 2 - containerRect.top;
+
+        const radius = 80;
+
+        // calcula posição do clicker na órbita
+        const x = centerX + radius * Math.cos((clicker.angle * Math.PI) / 180);
+        const y = centerY + radius * Math.sin((clicker.angle * Math.PI) / 180);
+
+        clicker.element.style.left = `${x}px`;
+        clicker.element.style.top = `${y}px`;
+
+        // anima "vai e vem" (mini clique na banana)
+        clicker.element.animate([
+            { transform: "scale(1)" },
+            { transform: "scale(0.7)" },
+            { transform: "scale(1)" }
+        ], {
+            duration: 500,
+            easing: "ease-in-out"
+        });
+
+        // atualiza ângulo continuamente
+        clicker.angle += clicker.speed * clicker.direction;
+        if (clicker.angle > 360) clicker.angle -= 360;
+        if (clicker.angle < 0) clicker.angle += 360;
+    }
+
 
     // =========================
     // 2️⃣ Monkeys (Upgrades)
@@ -265,19 +306,19 @@ export class UIManager {
             : [...new Set(skills.map(s => s.category || 'default'))];
 
         categories.forEach(category => {
-            const catDiv = document.createElement("div");
+            const catDiv = document.createElement("ul");
             catDiv.classList.add("skill-category");
 
             const title = document.createElement("h3");
             title.textContent = (category || 'DEFAULT').toString().toUpperCase();
             catDiv.appendChild(title);
 
-            const categoryNodes = document.createElement("div");
+            const categoryNodes = document.createElement("li");
             categoryNodes.classList.add("category__nodes");
             catDiv.appendChild(categoryNodes);
 
             skills.filter(skill => skill?.category === category).forEach(skill => {
-                const skillEl = document.createElement("div");
+                const skillEl = document.createElement("li");
                 skillEl.classList.add("skill-node");
 
                 const nameEl = document.createElement("span");

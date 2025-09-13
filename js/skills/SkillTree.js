@@ -178,12 +178,34 @@ export const skillTreeData = {
             maxLevel: 5,
             parents: ["clickBoost2"],
             unlockRequirements: [
-                (player) => player.getSkillById("clickBoost2")?.level >= 3
+                (player) => player.getSkillById("clickBoost1")?.level >= 3
             ],
-            baseCost: 1000,
+            baseCost: 10,
             getCost: (level) => Math.floor(1000 * Math.pow(2, level)),
             effect: (player, level) => {
+                player.autoClickEnabled = true;
                 player.autoClickSpeed = Math.max(5 - level * 0.8, 0.5); // segundos por clique
+                player.autoClickMultiplier = 1 + 0.1 * level;
+                const newClicker = {
+                    angle: Math.random() * 360,
+                    direction: Math.random() > 0.5 ? 1 : -1,
+                    speed: 0.5 + Math.random() * 0.5, // graus por frame
+                    id: `autoClicker_${Date.now()}`,
+                    element: null
+                };
+
+
+                // cria o elemento fixo
+                const el = document.createElement("div");
+                el.classList.add("auto-click");
+                document.getElementById("banana-container").appendChild(el);
+                newClicker.element = el;
+
+                player.autoClickers.push(newClicker);
+                console.log(newClicker);
+
+
+                if (!player.autoClickIntervalID) player.startAutoClick();
             }
         },
         {
@@ -203,6 +225,62 @@ export const skillTreeData = {
                 player.autoClickMultiplier = 1 + 0.1 * level; // aumenta produção do auto click
             }
         },
+        {
+            id: "autoClickChance",
+            name: "Auto Click Chance",
+            description: "Aumenta a chance de crit do auto click em 10%.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["autoClick2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("autoClick2")?.level >= 3
+            ],
+            baseCost: 5000,
+            getCost: (level) => 5000 * Math.pow(2, level),
+            effect: (player, level) => {
+                player.autoClickCritChance = 0.1 * level;       // 10%, 20%, ... 50%
+                player.startAutoClick();
+            }
+        },
+        {
+            id: "autoClickCrit",
+            name: "Auto Click Crit",
+            description: "Aumenta o multiplicador crit do auto click.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["autoClick2"],
+            unlockRequirements: [
+                (player) => player.getSkillById("autoClick2")?.level >= 3
+            ],
+            baseCost: 5000,
+            getCost: (level) => 5000 * Math.pow(2, level),
+            effect: (player, level) => {
+                player.autoClickCritMultiplier = 1.5 + 0.1 * level; // 1.6, 1.7, ... 2.0x
+                player.startAutoClick();
+            }
+        },
+        {
+            id: "holdClick1",
+            name: "Hold Click I",
+            description: "Segurando o botão você gera bananas automaticamente.",
+            category: "click",
+            maxLevel: 5,
+            parents: ["autoClick2"], // desbloqueia após auto click avançado
+            unlockRequirements: [
+                (player) => player.getSkillById("autoClick2")?.level >= 5
+            ],
+            baseCost: 10000,
+            getCost: (level) => 10000 * Math.pow(1.8, level),
+            effect: (player, level) => {
+                player.holdClickEnabled = true;
+                player.holdClickMultiplier = 0.5 + 0.1 * level; // produção mais baixa que click normal
+                player.startHoldClick();
+            }
+        }
+
+
+        // hold
+
 
 
     ],
