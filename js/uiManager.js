@@ -296,7 +296,7 @@ export class UIManager {
     // 5️⃣ Skill Tree
     // =========================
     renderSkillTree() {
-        const container = document.getElementById("skills-container");
+        const container = document.getElementById("skill-tree");
         if (!container) return;
         container.innerHTML = '';
 

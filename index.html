@@ -10,181 +10,64 @@
 
         body {
             font-family: "Noto Sans", sans-serif;
-            background: #5d3b57;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            max-width: 100vw;
-            box-sizing: content-box;
-            background-image: url(bg/Jungle-bg.png);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            max-height: 100vh;
-            /* overflow: hidden; */
-
-        }
-
-        #title {
-            align-self: flex-start;
-            margin: 1em;
-            font-size: 1.4em;
-            color: #ffa500;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.544);
-        }
-
-        h2 {
-            align-self: flex-start;
             padding: 1em;
-            position: sticky;
-            top: 2em;
-        }
-
-        #game {
-            width: 100%;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(6px);
-            overflow: hidden;
-
-        }
-
-        #playlist-container {
-            position: fixed;
-            top: 1em;
-            right: 10px;
-            display: flex;
+            display: grid;
+            grid-template-rows: 10% 90%;
+            grid-template-columns: 40% 1fr 40%;
             gap: 1em;
-            flex-direction: column;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 8px 12px;
-            border-radius: 8px;
+            background: url(bg/Jungle-bg.png) center/cover no-repeat;
             color: #fff;
-            font-family: sans-serif;
-            z-index: 2;
-            width: 250px;
-            height: 8em;
-            box-sizing: border-box;
-        }
-
-        #playlist-container .track-name {
-            margin-bottom: 8px;
-            font-size: 14px;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
-
-        #playlist-actions {
-            display: flex;
-            gap: 6px;
-            justify-content: center;
-            margin-bottom: 6px;
-            width: 100%;
-
-        }
-
-        #playlist-container input {
-
-            width: 100%;
-
-        }
-
-        #playlist-actions button {
-            background-color: #222;
-            color: #fff;
-            border: none;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background-color 0.2s;
-        }
-
-        #playlist-actions button:hover {
-            background-color: #555;
-        }
-
-        #playlist-progress {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            height: 1em;
-            border-radius: 3px;
             overflow: hidden;
         }
 
-        #playlist-progress .progress-bar {
-            height: 100%;
-        }
-
-        #current-music-container {
-            position: relative;
-            max-width: 200px;
-            /* largura visível */
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        #current-music {
-            display: inline-block;
-            max-width: 200px;
-            /* limite do espaço */
-            white-space: nowrap;
-            /* overflow: hidden; */
-            vertical-align: middle;
-            position: relative;
-        }
-
-
-        #current-music.scroll {
-            animation: scroll-text 10s linear infinite;
-        }
-
-        #hud {
-            position: sticky;
-            top: 1em;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: fit-content;
-            align-self: flex-start;
-            margin: 1em;
-            gap: 20px;
-            border-radius: 6px;
-            z-index: 2;
-        }
-
-        .counters {
-            display: flex;
-            justify-content: space-between;
-            gap: 1em;
+        /* Painéis do grid */
+        #left-panel,
+        #right-panel,
+        #center-panel,
+        #header-panel {
+            background: rgba(0, 0, 0, 0.6);
             padding: 1em;
-
-        }
-
-        #banana-count {
-            color: #ffcc33;
-        }
-
-        #banana-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
+            border-radius: 12px;
+            overflow: auto;
             display: flex;
+            flex-direction: column;
+        }
+
+        #header-panel {
+            grid-column: 1 / -1;
             justify-content: center;
             align-items: center;
-            pointer-events: none;
+            overflow: hidden;
         }
+
+        #left-panel {
+            grid-row: 2;
+            grid-column: 1;
+        }
+
+        #center-panel {
+            flex-direction: column-reverse;
+            justify-content: center;
+            align-items: center;
+            grid-row: 2;
+        }
+
+        #right-panel {
+            grid-row: 2;
+        }
+
+
+
+
+        #skill-tree {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            padding: 1em;
+        }
+
 
         .auto-click {
             width: 100px;
@@ -202,7 +85,7 @@
             /* width: 250px; */
             aspect-ratio: 1;
             display: block;
-            width: 250px;
+            width: 150px;
             z-index: 2;
             background-color: transparent;
             padding: 0;
@@ -220,55 +103,13 @@
         }
 
 
+
         #upgrades-container {
-            place-self: flex-start;
-            position: fixed;
-            top: 16em;
-            width: 33%;
-            justify-content: space-between;
-            gap: 1em;
-            height: 67vh;
-            overflow: auto;
-            padding: 1em;
-
-
-        }
-
-
-
-        .monkey {
-            background: white;
-            border: 1px solid #ccc;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            flex-basis: 15%;
-            max-height: 200px;
-            max-width: 400px;
-        }
-
-        #buildings {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
+            gap: 1em;
         }
 
-        .building,
-        .monkey,
-        #hud {
-            border: 2px solid #444;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            background: #222;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .building:hover,
         .monkey:hover {
             outline: 2px solid #ffa500;
             color: rgb(255, 255, 255);
@@ -287,89 +128,6 @@
         button:hover {
             background: #ffcc33;
         }
-
-        .description {
-            display: flex;
-            flex-direction: column;
-        }
-
-
-        #skills-container {
-            width: 100%;
-            /* height: 100px; */
-            place-self: flex-end;
-            background-color: #000;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 12px;
-            /* width: 50%; */
-            padding: 8px;
-            /* overflow: auto; */
-            font-size: 1em;
-        }
-
-        .skill-category {
-            border: 1px solid #ccc;
-            width: 40px;
-            /* padding: 8px; */
-            border-radius: 6px;
-            background-color: #9e9e9e;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1 1 40%;
-            overflow-y: hidden;
-            max-height: 60px;
-
-        }
-
-        .category__nodes {
-            display: flex;
-            width: 100%;
-            /* flex-direction: column; */
-            gap: 2em;
-            margin-top: 4px;
-            flex-wrap: wrap;
-            justify-content: center;
-
-        }
-
-
-        .skill-node {
-            display: flex;
-            width: 100%;
-            /* height: 300px; */
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            /* background-image: url(bg/Banana-category.png); */
-            background-color: white;
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: 100%;
-            /* color: white; */
-            border: 2px solid black;
-            /* text-shadow: 2px 2px 6px black; */
-            padding: 4px 6px;
-            border-radius: 4px;
-            text-align: center;
-            /* font-weight: bolder; */
-            /* flex-basis: 300px; */
-            position: relative;
-        }
-
-        /* .skill-node:hover p,
-        .skill-node:hover span {
-            width: 80%;
-            display: inline-block;
-            scale: 1.1;
-            overflow-x: hidden;
-            transition: scale 0.2s ease-in-out;
-
-        } */
-
 
         .skill-node button {
             padding: 10px;
@@ -412,18 +170,6 @@
             border-radius: 10px;
         }
 
-        #dancing-monkey {
-            position: relative;
-        }
-
-        #dancing-monkey img {
-            width: 100px;
-            height: 100px;
-            position: fixed;
-            left: 0;
-            bottom: 10px;
-
-        }
 
         @keyframes floatUp {
             0% {
@@ -510,13 +256,78 @@
             }
 
         }
+
+        /* Comentado por enquanto */
+        /* #dancing-monkey { display: none; } */
     </style>
 </head>
 
 <body>
 
+    <!-- Header -->
 
-    <div id="game">
+    <div id="header-panel">
+        <div class="game-state">
+            <button id="save-button">Salvar</button>
+            <button id="load-button">📂 Carregar</button>
+            <button id="reset-button">Resetar</button>
+            <div id="telemetryButtonContainer"></div>
+        </div>
+    </div>
+
+    <!-- Painel esquerdo -->
+    <div id="center-panel">
+        <div id="hud">
+            <div class="counters">
+                <div>Bananas: <span id="banana-count">0</span></div>
+                <div>Prismatics: <span id="prismatics-count">0</span></div>
+                <div>Bananas/s: <span id="bananas-per-second">0</span></div>
+            </div>
+        </div>
+        <div id="banana-container">
+            <button id="banana-button">
+                <img src="assets/banana-galaxy.png" alt="Banana Galaxy">
+            </button>
+            <p id="bananas-per-second"></p>
+        </div>
+    </div>
+
+    <!-- Painel central -->
+    <div id="left-panel">
+
+        <div id="skill-tree">
+            <!-- Aqui vai a árvore de skills com scroll arrastável -->
+        </div>
+    </div>
+
+    <!-- Painel direito -->
+    <div id="right-panel">
+        <h3>Monkey Upgrades & Constructions</h3>
+        <div id="upgrades-container">
+            <!-- Lista de upgrades -->
+        </div>
+
+        <!-- Construções -->
+        <div id="buildings">
+            <!-- <h2>Construções</h2> -->
+            <div id="buildings-container"></div>
+        </div>
+    </div>
+
+    <!-- Comentados por enquanto -->
+    <!--
+    <div id="playlist-container"></div>
+    <div id="skills-container"></div>
+    <div id="dancing-monkey"><img src="assets/monkey-dancing.gif" alt=""></div>
+    -->
+
+    <script type="module" src="./js/Main.js"></script>
+</body>
+
+</html>
+
+
+<!-- <div id="game">
         <h1 id="title">🐒 Macaicos Clicker</h1>
         <div id="playlist-container">
             <div id="current-music-container">
@@ -533,10 +344,7 @@
             <div id="telemetryButtonContainer"></div>
         </div>
 
-        <!-- HUD -->
         <div id="hud">
-            <!-- Botões de controle -->
-
             <div class="counters">
                 <div>Bananas: <span id="banana-count">0</span></div>
                 <div>Prismatics: <span id="prismatics-count">0</span></div>
@@ -545,34 +353,25 @@
         </div>
 
         <div id="banana-container">
-            <!-- Botão principal -->
             <button id="banana-button"><img src="assets/banana-galaxy.png"
                     alt="Banana Galaxy"></button>
         </div>
 
 
-
-        <!-- Container dos upgrades -->
-        <!-- <h2>Upgrades (Macaicos)</h2> -->
         <div id="upgrades-container"></div>
 
-        <!-- Construções -->
-        <div id="buildings">
-            <!-- <h2>Construções</h2> -->
-            <!-- Mina -->
-            <div id="buildings-container"></div>
+        <div id="buildings-container">
+            <div id="buildings"></div>
         </div>
 
         <div id="skills-container">
 
         </div>
-
-        <!-- <div id="dancing-monkey"><img src="assets/monkey-dancing.gif" alt=""></div> -->
     </div>
-    </div>
+    </div> -->
 
-    <!-- Scripts -->
-    <script type="module" src="./js/Main.js"></script>
+<!-- Scripts -->
+<script type="module" src="./js/Main.js"></script>
 </body>
 
 </html>
