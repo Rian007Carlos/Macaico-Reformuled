@@ -1,26 +1,30 @@
 import { GameState } from './GameState.js';
-import { Player } from './player.js';
 import { UIManager } from './uiManager.js';
+import { Player } from './player.js';
 import { upgradeMonkeys } from './Monkey.js';
-import { createSkillTree } from './skills/SkillTree.js';
-import { SkillNode } from './skills/SkillNode.js';
 import { bgmManager } from './sfx/bgmManager.js';
+import { initializeSkills } from './skills/initializeSkills.js';
 
 // === Instâncias principais ===
 const player = new Player(null);
-player.skills = createSkillTree(player);
+initializeSkills(player);
+
+
+// 2️⃣ Cria nodes da skill tree e adiciona ao player
+
 player.skillCategories = [...new Set((player.skills || []).map(s => s.category || 'default'))];
 
-
+// 3️⃣ Upgrades e buildings
 const upgrades = [...upgradeMonkeys];
 player.upgrades = upgrades;
+
 const buildings = [
-    { name: 'mine', unlocked: player.mine.unlocked },
-    { name: 'laboratory', unlocked: player.laboratory.unlocked },
-    { name: 'forge', unlocked: player.forge.unlocked }
+    { name: 'mine', unlocked: player.mine?.unlocked },
+    { name: 'laboratory', unlocked: player.laboratory?.unlocked },
+    { name: 'forge', unlocked: player.forge?.unlocked }
 ];
 
-// UIManager recebe referências aos elementos do DOM
+// 4️⃣ UIManager recebe referências aos elementos do DOM
 const ui = new UIManager(player, {
     telemetryButtonContainer: document.getElementById('telemetryButtonContainer'),
     bananaCount: document.getElementById('banana-count'),
@@ -32,48 +36,46 @@ const ui = new UIManager(player, {
     resetButton: document.getElementById('reset-button'),
     upgrades: upgrades,
     buildings: buildings,
-    skills: player.skills
+    skills: player.skills,
+    skillTreeContainer: document.getElementById("skill-tree")
 });
 
 player.uiManager = ui;
+
+// 5️⃣ Renderização inicial
+ui.clearMonkeys();
+ui.renderAllUnlockedMonkeys();
+ui.checkAllUnlocks();
+ui.updateAllCounters(player);
 ui.renderSkillTree();
-ui.startUIRenderLoop();
-
-// carrega estado salvo
-function initGame() {
-    GameState.load(player, upgrades, buildings, ui);
-
-    // === Renderização inicial ===
-    ui.clearMonkeys();              // limpa antes de re-renderizar
-    ui.renderAllUnlockedMonkeys();  // recria todos os macacos desbloqueados
-    ui.checkAllUnlocks();           // garante que unlocks dependentes sejam verificados
-    ui.updateAllCounters(player);   // counters (bananas, prismatics, BPS)
-
-    // Skills: reaplicar visual dos nós (locked/unlocked/level)
-    ui.renderSkillTree();
-    ui.updateSkillTreeUI(player);
-
-    // Buildings
-    if (player.mine.unlocked) {
-        ui.renderMine();
-    }
-}
-
-
-
-// ui.showReloadWarning();
+ui.setupSkillTreeListeners();
 ui.renderPlaylist();
 
+// 7️⃣ Event listener para mudanças de música
 bgmManager.onTrackChange = (trackName) => {
     const currentMusic = document.getElementById("current-music");
     if (currentMusic) currentMusic.textContent = trackName || "Nenhuma música";
     ui.updatePlaylistUI(); // atualiza também botão play/pause
 };
 
+// 8️⃣ Load estado salvo
+function initGame() {
+    GameState.load(player, upgrades, buildings, ui);
 
+    ui.clearMonkeys();
+    ui.renderAllUnlockedMonkeys();
+    ui.checkAllUnlocks();
+    ui.updateAllCounters(player);
+
+    if (player.mine?.unlocked) ui.renderMine();
+}
+
+// 9️⃣ Inicia loops
 initGame();
+ui.startUIRenderLoop();
 ui.startGameLoop();
 
+// 10️⃣ Auto-save
 setInterval(() => {
     GameState.save(player, upgrades, buildings);
     console.log("Jogo salvo");

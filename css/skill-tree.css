@@ -1,0 +1,501 @@
+/* container fullscreen */
+#skill-tree.skill-tree-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #15063d; /* fundo escuro */
+  display: grid;
+  grid-template-columns: repeat(46, 30px); /* cada célula até 50px */
+  grid-template-rows: repeat(29, 30px);
+  justify-content: center; /* centraliza horizontalmente */
+  align-content: center; /* centraliza verticalmente */
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+#close-skill-tree {
+  position: absolute;
+  top: 2em;
+  left: 2em;
+  padding: 6px 12px;
+  background: #22222200;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid #c83f3f;
+}
+#close-skill-tree:hover {
+  background: #ea3333;
+}
+
+#skill-card.hidden {
+  display: none;
+}
+#skill-tree.hidden, .hidden {
+  display: none;
+}
+
+/* cada node */
+.skill-node {
+  position: relative;
+  overflow: visible;
+  width: 25px;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out;
+  background-color: rgb(255, 255, 255);
+  margin: auto;
+  font-size: 10px;
+}
+
+#skill-card {
+  width: calc(25px * 8);
+  min-height: calc(25px * 8);
+  height: fit-content;
+  background-color: rgb(218, 70, 70);
+  color: rgba(255, 255, 255, 0.707);
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.652);
+  border-radius: 15px;
+  border: 2px solid white;
+  box-shadow: 2px 2px 5px rgba(243, 243, 243, 0.567);
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+  font-size: 12px;
+  text-transform: uppercase;
+  gap: 1em;
+  font-size: 1em;
+}
+
+.skill-tooltip {
+    position: absolute;
+    background: #222;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 1000;
+}
+.skill-tooltip.show {
+    opacity: 1;
+}
+
+
+
+.skill-level {
+  position: absolute;
+  bottom: -20px;
+  right: -2px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.green-tree {
+  grid-column: 1 / 15;
+  grid-row: 6 / 26;
+  width: 100%;
+}
+
+.skill-card h2 {
+  margin: 0;
+}
+
+
+/* locked */
+.skill-node.locked {
+  background: rgba(185, 74, 74, 0.347);
+  border: 2px dashed rgba(255, 255, 255, 0.363);
+  color: gray;
+  font-size: 1px;
+}
+
+/* hover */
+.skill-node:hover {
+  transform: scale(1.1);
+}
+
+.click {
+  background-color: #3fe92f;
+}
+
+.banana {
+  background-color: #e8eb21;
+}
+
+.mine {
+  background-color: #ea3333;
+}
+
+.rare {
+  background-color: rgb(19, 188, 226);
+}
+
+.monkey {
+  background-color: #895012;
+}
+
+/* click  */
+
+#click-boost1 {
+  grid-column: 24;
+  grid-row: 15;
+}
+
+.ckb1-ckb2 {
+  grid-column: 24;
+  grid-row: 14;
+}
+
+#click-boost2 {
+  grid-column: 24;
+  grid-row: 13;
+}
+
+
+
+.ckb2-ccc {
+  grid-column: 23;
+  grid-row: 12;
+}
+
+.ckb2-ccm {
+  grid-column: 23;
+  grid-row: 14;
+}
+
+#click-crit-chance {
+  grid-column: 22;
+  grid-row: 11;
+}
+
+#click-crit-multiplier {
+  grid-column: 22;
+  grid-row: 15;
+}
+
+.ckb2-ac1 {
+  grid-column: 25;
+  grid-row: 13;
+}
+
+#auto-click1 {
+  grid-column: 26;
+  grid-row: 13;
+}
+
+.ac1-ac2 {
+  grid-column: 26;
+  grid-row: 12;
+}
+
+#auto-click2 {
+  grid-column: 26;
+  grid-row: 11;
+}
+
+.ac2-hca {
+  grid-column: 26;
+  grid-row: 10;
+}
+
+.ac2-hcb {
+  grid-column: 26;
+  grid-row: 9;
+}
+
+.ac2-hcc {
+  grid-column: 26;
+  grid-row: 8;
+}
+
+#hold-click {
+  grid-column: 26;
+  grid-row: 7;
+}
+
+.ac2-acc {
+  grid-column: 25;
+  grid-row: 10;
+}
+
+.ac2-acm {
+  grid-column: 27;
+  grid-row: 10;
+}
+
+#auto-click-crit-chance {
+  grid-column: 24;
+  grid-row: 9;
+}
+
+#auto-click-crit-multiplier {
+  grid-column: 28;
+  grid-row: 9;
+}
+
+
+
+/* banana  */
+.ckb1-bb1a {
+  grid-column: 24;
+  grid-row: 16;
+}
+
+.ckb1-bb1b {
+  grid-column: 24;
+  grid-row: 17;
+}
+
+#banana-boost1 {
+  grid-column: 24;
+  grid-row: 18;
+}
+
+.bb1-bb2 {
+  grid-column: 24;
+  grid-row: 19;
+}
+
+#banana-boost2 {
+  grid-column: 24;
+  grid-row: 20;
+}
+
+.bb2-bb3 {
+  grid-column: 24;
+  grid-row: 21;
+}
+
+#banana-boost3 {
+  grid-column: 24;
+  grid-row: 22;
+}
+
+.bb3-be1 {
+  grid-column: 24;
+  grid-row: 23;
+}
+
+#banana-evo1 {
+  grid-column: 24;
+  grid-row: 24;
+}
+
+.be1-be2 {
+  grid-column: 24;
+  grid-row: 25;
+}
+
+#banana-evo2 {
+  grid-column: 24;
+  grid-row: 26;
+}
+
+
+/* mine  */
+
+.ckb1-me1a {
+  grid-column: 25;
+  grid-row: 15;
+}
+
+.ckb1-me1b {
+  grid-column: 26;
+  grid-row: 15;
+}
+
+.ckb1-me1c {
+  grid-column: 27;
+  grid-row: 15;
+}
+
+#mine-eficiency1 {
+  grid-column: 28;
+  grid-row: 15;
+}
+
+.me1-me2 {
+  grid-column: 29;
+  grid-row: 15;
+}
+
+#mine-eficiency2 {
+  grid-column: 30;
+  grid-row: 15;
+}
+
+.me2-ma {
+  grid-column: 31;
+  grid-row: 16;
+}
+
+#mine-automation {
+  grid-column: 32;
+  grid-row: 17;
+}
+
+#m1, #m2, #m3, #m4, #m5,
+#m6, #m7, #m8, #m9, #m10,
+#m11, #m12, #m13, #m14, 
+#m15, .m1-m2, .m2-m3, 
+.m3-m4, .m4-m5, .m5-m6,
+.m6-m7, .m7-m8, .m8-m9,
+.m9-m10, .m10-m11, .m11-m12, 
+.m12-m13, .m13-m14, .m14-m15 {
+  grid-row: 28;
+}
+
+#m1 {
+  grid-column: 9;
+}
+
+.m1-m2 {
+  grid-column: 10;
+}
+
+#m2 {
+  grid-column: 11;
+}
+
+.m2-m3 {
+  grid-column: 12;
+}
+
+#m3 {
+  grid-column: 13;
+}
+
+.m3-m4 {
+  grid-column: 14;
+}
+
+#m4 {
+  grid-column: 15;
+}
+
+.m4-m5 {
+  grid-column: 16;
+}
+
+#m5 {
+  grid-column: 17;
+}
+
+.m5-m6 {
+  grid-column: 18;
+}
+
+#m6 {
+  grid-column: 19;
+}
+
+.m6-m7 {
+  grid-column: 20;
+}
+
+#m7 {
+  grid-column: 21;
+}
+
+.m7-m8 {
+  grid-column: 22;
+}
+
+#m8 {
+ grid-column: 23;
+}
+
+.m8-m9 {
+  grid-column: 24;
+}
+
+#m9 {
+ grid-column: 25;
+}
+
+.m9-m10 {
+  grid-column: 26;
+}
+
+#m10 {
+  grid-column: 27;
+}
+
+.m10-m11 {
+  grid-column: 28;
+}
+
+#m11 { 
+  grid-column: 29;
+}
+
+.m11-m12 {
+  grid-column: 30;
+}
+
+#m12 {
+  grid-column: 31;
+}
+
+.m12-m13 {
+  grid-column: 32;
+}
+
+#m13 {
+  grid-column: 33;
+}
+
+.m13-m14 {
+  grid-column: 34;
+}
+
+#m14 {
+  grid-column: 35;
+}
+
+.m14-m15 {
+  grid-column: 36;
+}
+
+#m15 {
+  grid-column: 37;
+}
+
+.vertical-line, .horizontal-line, .diagonal-line-left, .diagonal-line-right{
+  width: 2px;
+  margin: 0 auto;
+  height: 100%;
+  background-color: #ec589db5;
+}
+
+.diagonal-line-left {
+   transform: rotate(-45deg);
+}
+
+.diagonal-line-right {
+   transform: rotate(45deg);
+}
+
+.horizontal-line {
+  transform: rotate(90deg);
+}
+

@@ -12,7 +12,6 @@ export class SkillNode {
         getCost = null,          // opcional: function(level) => number
         baseCost = null,         // opcional: número simples (custo fixo)
         targetMonkey = null,     // ligação com monkey (se houver)
-        parents = [],            // array de IDs dos nós pais
         ...rest
     }) {
         this.id = id;
@@ -25,7 +24,6 @@ export class SkillNode {
         this.effect = effect;
         this.getCost = (typeof getCost === 'function') ? getCost : null;
         this.baseCost = (typeof baseCost === 'number') ? baseCost : null;
-        this.parents = parents;
         this._unlocked = unlocked;
         this.targetMonkey = targetMonkey;
         Object.assign(this, rest);

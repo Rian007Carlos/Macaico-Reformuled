@@ -5,261 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macaicos Clicker</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 
-        body {
-            font-family: "Noto Sans", sans-serif;
-            margin: 0;
-            padding: 1em;
-            height: 100vh;
-            display: grid;
-            grid-template-rows: 10% 90%;
-            grid-template-columns: 40% 1fr 40%;
-            gap: 1em;
-            background: url(bg/Jungle-bg.png) center/cover no-repeat;
-            color: #fff;
-            overflow: hidden;
-        }
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/game-ui.css">
+    <link rel="stylesheet" href="css/skill-tree.css">
 
-        /* Painéis do grid */
-        #left-panel,
-        #right-panel,
-        #center-panel,
-        #header-panel {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 1em;
-            border-radius: 12px;
-            overflow: auto;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #header-panel {
-            grid-column: 1 / -1;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        #left-panel {
-            grid-row: 2;
-            grid-column: 1;
-        }
-
-        #center-panel {
-            flex-direction: column-reverse;
-            justify-content: center;
-            align-items: center;
-            grid-row: 2;
-        }
-
-        #right-panel {
-            grid-row: 2;
-        }
-
-
-
-
-        #skill-tree {
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            padding: 1em;
-        }
-
-
-        .auto-click {
-            width: 100px;
-            height: 100px;
-            background: url("assets/auto-click.png") no-repeat center center;
-            background-size: contain;
-            pointer-events: none;
-            position: absolute;
-            /* relativo ao #banana-container */
-            z-index: 2;
-
-        }
-
-        #banana-button {
-            /* width: 250px; */
-            aspect-ratio: 1;
-            display: block;
-            width: 150px;
-            z-index: 2;
-            background-color: transparent;
-            padding: 0;
-
-        }
-
-        #banana-button img {
-            width: 100%;
-            border-radius: 2em;
-            display: block;
-            box-sizing: content-box;
-            cursor: pointer;
-            pointer-events: initial;
-            transform: rotate(25deg);
-        }
-
-
-
-        #upgrades-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-        }
-
-        .monkey:hover {
-            outline: 2px solid #ffa500;
-            color: rgb(255, 255, 255);
-        }
-
-        button {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 6px;
-            background: #ffa500;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #ffcc33;
-        }
-
-        .skill-node button {
-            padding: 10px;
-            margin: 0;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .denied {
-            animation: deniedFlash 0.3s ease;
-        }
-
-        .floating-text {
-            position: absolute;
-            font-size: 24px;
-            font-weight: bold;
-            pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
-            color: white;
-            text-shadow: 1px 1px 3px black;
-            z-index: 1000;
-        }
-
-        .floating-text.crit {
-            font-size: 32px;
-            color: #ffa500;
-            /* laranja do crítico */
-            text-shadow: 2px 2px 6px black;
-        }
-
-
-        .game-state {
-            width: fit-content;
-            display: flex;
-            gap: 1em;
-            background-color: #222;
-            padding: 1em;
-            margin: 1em;
-            align-self: flex-start;
-            border-radius: 10px;
-        }
-
-
-        @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-
-            50% {
-                opacity: 0.9;
-                transform: translateY(-30px) scale(1.2);
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateY(-100px) scale(0.8);
-            }
-        }
-
-
-        @keyframes deniedFlash {
-            0% {
-                background-color: #ff4d4d;
-            }
-
-            50% {
-                background-color: #fff;
-            }
-
-            100% {
-                background-color: #ff4d4d;
-            }
-        }
-
-        @keyframes scroll-text {
-            0% {
-                transform: translateX(0%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-
-
-        @media(max-width: 768px) {
-            body {
-                font-size: 1em;
-
-                padding: 0;
-                display: flex;
-                flex-direction: column;
-
-                align-items: center;
-
-                overflow-y: auto;
-            }
-
-            #hud {
-                width: 100%;
-
-                display: flex;
-
-                justify-content: space-between;
-
-            }
-
-            .counters {
-                display: flex;
-                justify-content: center;
-                gap: .4em;
-                font-size: .8em;
-            }
-
-            #upgrades-container {
-                width: 100%;
-                flex-direction: column;
-
-            }
-
-            .monkey {
-                display: flex;
-
-            }
-
-        }
-
-        /* Comentado por enquanto */
-        /* #dancing-monkey { display: none; } */
-    </style>
 </head>
 
 <body>
@@ -291,12 +41,97 @@
             <p id="bananas-per-second"></p>
         </div>
     </div>
-
-    <!-- Painel central -->
     <div id="left-panel">
+        <button id="open-skill-tree">Skill Tree</button>
+        <div id="skill-tree" class="skill-tree-grid hidden">
 
-        <div id="skill-tree">
-            <!-- Aqui vai a árvore de skills com scroll arrastável -->
+            <button id="close-skill-tree">X</button>
+
+            <div class="skill-tooltip show"></div>
+
+            <div id="skill-card" class="skill-card hidden">
+                <h2 id="card-title"></h2>
+                <p id="card-description"></p>
+                <span id="card-price"></span>
+                <span id="card-progress"></span>
+                <button id="card-buy-btn">Comprar</button>
+            </div>
+
+            <!-- CLICK SKILLS -->
+            <button id="click-boost1" class="skill-node click locked">ckb1</button>
+            <div class="vertical-line ckb1-ckb2"></div>
+            <button id="click-boost2" class="skill-node click locked">ckb2</button>
+            <div class="diagonal-line-left ckb2-ccc"></div>
+            <div class="diagonal-line-right ckb2-ccm"></div>
+            <button id="click-crit-chance" class="skill-node click locked">ccc</button>
+            <button id="click-crit-multiplier" class="skill-node click locked">ccm</button>
+            <div class="horizontal-line ckb2-ac1"></div>
+            <button id="auto-click1" class="skill-node click locked">ac1</button>
+            <div class="vertical-line ac1-ac2"></div>
+            <button id="auto-click2" class="skill-node click locked">ac2</button>
+            <div class="diagonal-line-left ac2-acc"></div>
+            <div class="diagonal-line-right ac2-acm"></div>
+            <button id="auto-click-crit-chance" class="skill-node click locked">acc</button>
+            <button id="auto-click-crit-multiplier" class="skill-node click locked">acm</button>
+            <div class="vertical-line ac2-hca"></div>
+            <div class="vertical-line ac2-hcb"></div>
+            <div class="vertical-line ac2-hcc"></div>
+            <button id="hold-click" class="skill-node click locked">hc</button>
+
+            <!-- BANANA SKILLS -->
+            <div class="vertical-line ckb1-bb1a"></div>
+            <div class="vertical-line ckb1-bb1b"></div>
+            <button id="banana-boost1" class="skill-node banana locked">bb1</button>
+            <div class="vertical-line bb1-bb2"></div>
+            <button id="banana-boost2" class="skill-node banana locked">bb2</button>
+            <div class="vertical-line bb2-bb3"></div>
+            <button id="banana-boost3" class="skill-node banana locked">bb3</button>
+            <div class="vertical-line bb3-be1"></div>
+            <button id="banana-evo1" class="skill-node banana locked">be1</button>
+            <div class="vertical-line be1-be2"></div>
+            <button id="banana-evo2" class="skill-node banana locked">be2</button>
+
+            <!-- MINE SKILLS -->
+            <div class="horizontal-line ckb1-me1a"></div>
+            <div class="horizontal-line ckb1-me1b"></div>
+            <div class="horizontal-line ckb1-me1c"></div>
+            <button id="mine-eficiency1" class="skill-node mine locked">me1</button>
+            <div class="horizontal-line me1-me2"></div>
+            <button id="mine-eficiency2" class="skill-node mine locked">me2</button>
+            <div class="diagonal-line-left me2-ma"></div>
+            <button id="mine-automation" class="skill-node mine locked">ma</button>
+
+            <!-- MONKEY SKILLS -->
+            <button id="m1" class="skill-node monkey locked">m1</button>
+            <div class="horizontal-line m1-m2"></div>
+            <button id="m2" class="skill-node monkey locked">m2</button>
+            <div class="horizontal-line m2-m3"></div>
+            <button id="m3" class="skill-node monkey locked">m3</button>
+            <div class="horizontal-line m3-m4"></div>
+            <button id="m4" class="skill-node monkey locked">m4</button>
+            <div class="horizontal-line m4-m5"></div>
+            <button id="m5" class="skill-node monkey locked">m5</button>
+            <div class="horizontal-line m5-m6"></div>
+            <button id="m6" class="skill-node monkey locked">m6</button>
+            <div class="horizontal-line m6-m7"></div>
+            <button id="m7" class="skill-node monkey locked">m7</button>
+            <div class="horizontal-line m7-m8"></div>
+            <button id="m8" class="skill-node monkey locked">m8</button>
+            <div class="horizontal-line m8-m9"></div>
+            <button id="m9" class="skill-node monkey locked">m9</button>
+            <div class="horizontal-line m9-m10"></div>
+            <button id="m10" class="skill-node monkey locked">m10</button>
+            <div class="horizontal-line m10-m11 locked"></div>
+            <button id="m11" class="skill-node monkey locked">m11</button>
+            <div class="horizontal-line m11-m12"></div>
+            <button id="m12" class="skill-node monkey locked">m12</button>
+            <div class="horizontal-line m12-m13"></div>
+            <button id="m13" class="skill-node monkey locked">m13</button>
+            <div class="horizontal-line m13-m14"></div>
+            <button id="m14" class="skill-node monkey locked">m14</button>
+            <div class="horizontal-line m14-m15"></div>
+            <button id="m15" class="skill-node monkey locked">m15</button>
+
         </div>
     </div>
 
@@ -320,55 +155,11 @@
     <div id="skills-container"></div>
     <div id="dancing-monkey"><img src="assets/monkey-dancing.gif" alt=""></div>
     -->
-
     <script type="module" src="./js/Main.js"></script>
 </body>
 
 </html>
 
-
-<!-- <div id="game">
-        <h1 id="title">🐒 Macaicos Clicker</h1>
-        <div id="playlist-container">
-            <div id="current-music-container">
-                <div id="current-music"></div>
-            </div>
-            <div id="playlist-actions"></div>
-            <div id="playlist-progress"></div>
-        </div>
-
-        <div class="game-state">
-            <button id="save-button">Salvar</button>
-            <button id="load-button">📂 Carregar</button>
-            <button id="reset-button">Resetar</button>
-            <div id="telemetryButtonContainer"></div>
-        </div>
-
-        <div id="hud">
-            <div class="counters">
-                <div>Bananas: <span id="banana-count">0</span></div>
-                <div>Prismatics: <span id="prismatics-count">0</span></div>
-                <div>Bananas/s: <span id="bananas-per-second">0</span></div>
-            </div>
-        </div>
-
-        <div id="banana-container">
-            <button id="banana-button"><img src="assets/banana-galaxy.png"
-                    alt="Banana Galaxy"></button>
-        </div>
-
-
-        <div id="upgrades-container"></div>
-
-        <div id="buildings-container">
-            <div id="buildings"></div>
-        </div>
-
-        <div id="skills-container">
-
-        </div>
-    </div>
-    </div> -->
 
 <!-- Scripts -->
 <script type="module" src="./js/Main.js"></script>
