@@ -71,6 +71,7 @@ export class UIManager {
         });
 
         this.setupSkillTreeListeners();
+        this.setupSkillTreeOutsideClick();
 
     }
 
@@ -323,20 +324,30 @@ export class UIManager {
     // 5️⃣ Skill Tree
     // =========================
     renderSkillTree() {
+        if (!Array.isArray(this.player?.skills)) return;
+
+        // atualiza cada botão/nó já existente no HTML (não cria nada)
         this.player.skills.forEach(skill => {
             const button = document.getElementById(skill.id);
             if (!button) return;
 
+            // classes visuais
             button.classList.toggle("locked", !skill.unlocked);
             button.classList.toggle("unlocked", skill.unlocked);
             button.classList.toggle("maxed", skill.level >= skill.maxLevel);
 
-            // Remove listeners antigos antes de adicionar novos
+            // substitui por clone para remover listeners antigos
             const newButton = button.cloneNode(true);
             button.replaceWith(newButton);
-            newButton.addEventListener("click", () => this.showSkillCard(skill));
+
+            // adiciona listener do node (usa addEventListener e impede propagação)
+            newButton.addEventListener("click", (ev) => {
+                ev.stopPropagation();        // **ESSENCIAL**: evita que o clique no node ative o listener do container
+                this.showSkillCard(skill);
+            });
         });
     }
+
 
     showSkillCard(skill) {
         if (!skill.unlocked) {
@@ -377,6 +388,35 @@ export class UIManager {
                 }
                 this.showSkillCard(skill);
             });
+        });
+
+        this.cardCloseBtn = document.getElementById("card-close-btn");
+        if (this.cardCloseBtn) {
+            this.cardCloseBtn.addEventListener("click", (ev) => {
+                ev.stopPropagation(); // não deixa passar pro container
+                this.skillCard.classList.add("hidden");
+                delete this.skillCard.dataset.skillId;
+            });
+        }
+
+    }
+
+    // Fecha o card quando clicar "fora" de um node (ou quando clicar no próprio modal/card)
+    setupSkillTreeOutsideClick() {
+        if (!this.skillTreeContainer) return;
+        // garante que não adicionamos múltiplos listeners acidentalmente
+        if (this._skillTreeOutsideClickAdded) return;
+        this._skillTreeOutsideClickAdded = true;
+
+        this.skillTreeContainer.addEventListener("click", (event) => {
+            // se o clique foi num node, NÃO fecha (node já lida com abrir)
+            if (event.target.closest(".skill-node")) return;
+            if (event.target.closest("#skill-card")) return;
+
+            if (!this.skillCard.classList.contains("hidden")) {
+                this.skillCard.classList.add("hidden");
+                delete this.skillCard.dataset.skillId;
+            }
         });
     }
 

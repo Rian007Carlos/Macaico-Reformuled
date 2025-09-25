@@ -51,7 +51,7 @@ export const click = [
         description: "Aumenta a chance de acerto crítico em 1% por nível.",
         category: "click",
         maxLevel: 10,
-        unlockRequirements: [(player) => player.bananas >= 2000],
+        unlockRequirements: (player) => player.getSkillById("click-boost2"?.level >= 1),
         baseCost: 250,
         getCost: (level) => Math.floor(250 * Math.pow(1.12, level)),
         effect: (player, level) => {

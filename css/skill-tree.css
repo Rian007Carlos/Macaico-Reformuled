@@ -20,14 +20,23 @@
   position: absolute;
   top: 2em;
   left: 2em;
-  padding: 6px 12px;
-  background: #22222200;
-  color: #fff;
-  border: none;
+}
+
+#card-close-btn {
+  position: absolute;
+  right: .5em;
+  top: .5em;
+}
+
+.close-btn {
+  border: 2px solid #ec0a0a;
+  color: rgb(216, 216, 216);
+  background-color: #ff4d4d84;
   border-radius: 6px;
   cursor: pointer;
-  border: 2px solid #c83f3f;
+ 
 }
+
 #close-skill-tree:hover {
   background: #ea3333;
 }
@@ -59,12 +68,11 @@
   width: calc(25px * 8);
   min-height: calc(25px * 8);
   height: fit-content;
-  background-color: rgb(218, 70, 70);
-  color: rgba(255, 255, 255, 0.707);
+  background-color: #3d0638;
+  color: rgba(255, 255, 255, 0.884);
   text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.652);
   border-radius: 15px;
   border: 2px solid white;
-  box-shadow: 2px 2px 5px rgba(243, 243, 243, 0.567);
   position: fixed;
   top: 1em;
   right: 1em;
@@ -77,6 +85,7 @@
   text-transform: uppercase;
   gap: 1em;
   font-size: 1em;
+  padding: 2.2em;
 }
 
 .skill-tooltip {
