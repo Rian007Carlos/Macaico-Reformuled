@@ -174,14 +174,15 @@ export class Player {
     }
     // === Auto-click
     startAutoClick() {
-        const animate = () => {
-            this.autoClickers.forEach(clicker => {
-                this.uiManager.spawnAutoClickAnimation(clicker);
-            });
-            this.autoClickIntervalID = requestAnimationFrame(animate);
-        };
-        this.autoClickIntervalID = requestAnimationFrame(animate);
+        // Desativa temporariamente
+        console.warn("Auto-click desabilitado temporariamente.");
+        // Se houver um loop rodando, cancelamos
+        if (this.autoClickIntervalID) {
+            cancelAnimationFrame(this.autoClickIntervalID);
+            this.autoClickIntervalID = null;
+        }
     }
+
 
     stopAutoClick() {
         if (this.autoClickIntervalID) {
@@ -199,17 +200,8 @@ export class Player {
 
     // === Criar um novo clicker (adiciona à rotação) ===
     addAutoClicker(level = 1) {
-        const newClicker = {
-            angle: Math.random() * 360,
-            direction: Math.random() > 0.5 ? 1 : -1,
-            speed: 0.02 + Math.random() * 0.03, // velocidade angular
-            id: `autoClicker_${level}_${Date.now()}`
-        };
-        this.autoClickers.push(newClicker);
-
-        // ativa auto click se não estiver rodando
-        this.autoClickEnabled = true;
-        if (!this.autoClickIntervalID) this.startAutoClick();
+        console.warn("Auto-click desativado, nenhum clicker será adicionado.");
+        // Não adiciona novos clickers
     }
 
     get allNodes() {
