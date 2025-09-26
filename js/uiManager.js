@@ -138,8 +138,8 @@ export class UIManager {
                 isCrit = false;
             }
 
-            // this.player.addBananas(clickValue, true);
-            this.player.addBananas(1000, true);
+            this.player.addBananas(clickValue, true);
+           // this.player.addBananas(1000, true);
             this.createFloatingText(clickValue, isCrit);
             this.updateBananaDisplay(this.player.bananas);
             this.queueUIUpdate(UIUpdateType.SKILL);
