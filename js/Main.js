@@ -4,10 +4,12 @@ import { Player } from './player.js';
 import { upgradeMonkeys } from './Monkey.js';
 import { bgmManager } from './sfx/bgmManager.js';
 import { initializeSkills } from './skills/initializeSkills.js';
+import { createMonkeySkillNodes } from './skills/MonkeySkillNodes.js';
 
 // === Instâncias principais ===
 const player = new Player(null);
 initializeSkills(player);
+createMonkeySkillNodes(player);
 
 
 // 2️⃣ Cria nodes da skill tree e adiciona ao player

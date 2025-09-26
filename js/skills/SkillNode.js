@@ -4,6 +4,7 @@ export class SkillNode {
         name = "???",
         description = "???",
         category = "default",
+        isMonkey = false,
         unlocked = false,
         level = 0,
         maxLevel = 1,
@@ -138,13 +139,15 @@ export class SkillNode {
         if (this.effect) this.effect(player, this.level, extra);
         if (player.recalculateBPS) player.recalculateBPS();
 
+        // atualiza UI para monkey
+        if (uiManager && this.isMonkey) {
+            uiManager.queueUIUpdate(UIUpdateType.MONKEY);
+            uiManager.queueUIUpdate(UIUpdateType.BANANA);
+        }
+
+        // atualiza descrição e checa unlocks
         if (uiManager && this.targetMonkey) {
             const monkey = this.targetMonkey;
-
-            if (!document.querySelector(`.monkey[data-monkey="${monkey.name}"]`)) {
-                uiManager.renderMonkey(monkey);
-            }
-
             uiManager.updateMonkeyDescription(monkey);
             uiManager.checkAllUnlocks();
         }

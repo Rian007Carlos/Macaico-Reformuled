@@ -13,8 +13,8 @@ export class UpgradeMonkey {
     }) {
         this.id = id;
         this.name = name;
-        this.baseCost = cost;
-        this.cost = cost;
+        this.baseCost = cost ?? skillTreeBaseCost; // fallback
+        this.cost = cost ?? skillTreeBaseCost;     // fallback
         this.baseProduction = baseProduction;
         this.multiplier = multiplier;
         this.costExponent = costExponent;
@@ -23,12 +23,14 @@ export class UpgradeMonkey {
         this.unlocked = false;   // 🔑 Só vira true quando a skill tree liberar
         this.isProducing = false;
 
+
         this.unlockRequirements = unlockRequirements;
         this.skillTreeBaseCost = skillTreeBaseCost;
     }
 
     getProduction() {
-        return Math.floor((this.baseProduction * this.level) * this.multiplier || 1);
+        if (this.level <= 0) return 0;  // nunca produz se level 0
+        return Math.floor(this.baseProduction * this.level * this.multiplier);
     }
 
     startProduction(player) {
@@ -44,7 +46,10 @@ export class UpgradeMonkey {
 
         this.level++;
         this.updateCost();
-        this.startProduction(player);
+        if (this.level > 0) {       // só começa produção se level >= 1
+            this.startProduction(player);
+        }
+
 
         if (uiManager) {
             uiManager.queueUIUpdate(UIUpdateType.MONKEY);

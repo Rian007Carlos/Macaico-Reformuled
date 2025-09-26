@@ -202,6 +202,7 @@ export class Player {
     get allNodes() {
         return [
             ...this.skills,
+            ...this.upgrades.map(monkey => monkey.skillNode).filter(Boolean)
         ];
     }
 
@@ -211,8 +212,11 @@ export class Player {
     }
 
     getSkillById(id) {
+        const upgradeMonkey = this.upgrades.find(monkey => monkey.id === id);
+        if (upgradeMonkey?.skillNode) return upgradeMonkey.skillNode; // <--- Prioriza o skillNode do monkey
         return this.skills.find(skill => skill.id === id);
     }
+
 
     // === HUD ===
     refreshHUD(updateType = UIUpdateType.BANANA) {

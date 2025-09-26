@@ -5,11 +5,12 @@ import { UIUpdateType } from "../uiManager.js";
 export function createMonkeySkillNodes(player) {
     upgradeMonkeys.forEach(monkey => {
         const node = new SkillNode({
-            id: `skill_${monkey.name}`,
+            id: monkey.id,
             name: `${monkey.name} Mastery`,
             description: `Aumenta a produção do ${monkey.name} em +10% por nível.`,
-            category: "monkeys",
-            level: 0,
+            category: "monkey",
+            isMonkey: true,
+            level: monkey.level || 0,
             maxLevel: 10,
             targetMonkey: monkey,
             baseCost: monkey.skillTreeBaseCost || 25,
@@ -27,12 +28,16 @@ export function createMonkeySkillNodes(player) {
 
         // vincula o node ao monkey
         monkey.skillNode = node;
+        // inicializa o custo do monkey e a função de cálculo do próximo custo
+        monkey.cost = node.baseCost;
+        monkey.getNextCost = (level = node.level) => Math.floor(node.baseCost * Math.pow(1.45, level));
+        node.getNextCost = () => monkey.getNextCost(node.level);
+
 
         // adiciona o node ao player
         player.addSkillNode(node);
     });
 }
-
 
 // checa e aplica unlocks de todos os monkeys via seus nodes
 export function checkMonkeyUnlocks(player) {

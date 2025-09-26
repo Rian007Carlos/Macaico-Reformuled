@@ -56,6 +56,13 @@ export class UIManager {
         this.cardProgress = document.getElementById("card-progress");
         this.cardBuyBtn = document.getElementById("card-buy-btn");
 
+        this.monkeyCard = document.getElementById("monkey-card");
+        this.monkeyCardTitle = document.getElementById("monkey-card-title");
+        this.monkeyCardDescription = document.getElementById("monkey-card-description");
+        this.monkeyCardPrice = document.getElementById("monkey-card-price");
+        this.monkeyCardProgress = document.getElementById("monkey-card-progress");
+        this.monkeyCardBuyBtn = document.getElementById("monkey-card-buy-btn");
+
         // Listener do botão de compra do card de skill
         this.cardBuyBtn.addEventListener("click", () => {
             const skillId = this.skillCard.dataset.skillId;
@@ -64,12 +71,48 @@ export class UIManager {
             const skill = this.player.getSkillById(skillId);
             if (!skill) return;
 
-            if (!skill.unlocked) skill.unlock(this.player);
-            else skill.upgrade(this.player, this);
+            console.group(`🟢 Clicou no botão Comprar para skillId = ${skillId}`);
+            console.log("Objeto do skill antes da compra:", skill, "É SkillNode?", skill instanceof SkillNode);
+            console.log("Level atual:", skill.level, "Max level:", skill.maxLevel);
 
-            this.showNodeCard(skill);   // atualiza card
-            this.renderSkillTree();      // atualiza árvore
+            if (!skill.unlocked) {
+                console.log("Skill estava bloqueada. Chamando unlock...");
+                skill.unlock(this.player);
+            } else {
+                if (skill.isMonkey && skill.targetMonkey) {
+                    console.log("🐵 Skill é monkey, tratando mastery...");
+                    console.log("Level monkey antes:", skill.targetMonkey.level);
+
+                    if (skill.level < skill.maxLevel) {
+                        skill.level++;
+                        skill.targetMonkey.level = skill.level; // sincroniza
+                        console.log("Level monkey atualizado:", skill.targetMonkey.level);
+
+                        skill.effect(this.player, skill.level); // aplica efeito
+                        console.log("Efeito aplicado. Produção recalculada:", this.player.bananasPerSecond);
+                    } else {
+                        console.log("Skill monkey já está no nível máximo.");
+                    }
+                } else {
+                    console.log("✨ Skill normal, chamando upgrade...");
+                    skill.upgrade(this.player, this);
+                }
+            }
+
+            // Atualiza card e árvore
+            if (skill.isMonkey) {
+                console.log("Atualizando card de monkey...");
+                this.showMonkeyCard(skill);
+            } else {
+                console.log("Atualizando card de skill normal...");
+                this.showNodeCard(skill);
+            }
+
+            console.groupEnd();
+            this.renderSkillTree();
         });
+
+
 
         this.setupSkillTreeListeners();
         this.setupSkillTreeOutsideClick();
@@ -176,15 +219,18 @@ export class UIManager {
     renderMonkey(monkey) {
 
         const container = document.getElementById('upgrades-container');
-        if (!container || container.querySelector(`[data-monkey="${monkey.name}"]`)) return;
+        if (!container || container.querySelector(`[data-monkey="${monkey.id}"]`)) return;
 
         const monkeyEl = document.createElement('div');
         monkeyEl.classList.add('monkey');
-        monkeyEl.setAttribute('data-monkey', monkey.name);
+        monkeyEl.setAttribute('data-monkey', monkey.id);
 
         const description = document.createElement('span');
         description.classList.add('description');
-        description.textContent = `Nome: ${monkey.name} | Custo: ${formatNumber(monkey.cost)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction())} bananas/s`;
+
+        const cost = monkey.getNextCost?.() ?? 0;
+        this.cardPrice.textContent = formatNumber(cost)
+        description.textContent = `Nome: ${monkey.name} | Custo: ${formatNumber(monkey.cost ?? 0)} | Level: ${monkey.level} | Produção: ${formatNumber(monkey.getProduction?.() ?? 0)} bananas/s`;
         monkeyEl.appendChild(description);
 
         const buyBtn = document.createElement('button');
@@ -194,8 +240,8 @@ export class UIManager {
             if (!success) this.showDeniedFeedBack(buyBtn);
 
             // Atualiza apenas UI, unlocks serão processados pelo loop
-            this.queueUIUpdate(UIUpdateType.MONKEY);
-            this.queueUIUpdate(UIUpdateType.BANANA);
+            this.updateMonkeyUI(monkey);
+            this.updateBananasFromMonkeys();
         });
 
         monkeyEl.appendChild(buyBtn);
@@ -203,7 +249,7 @@ export class UIManager {
     }
 
     updateMonkeyUI(monkey) {
-        const monkeyEl = document.querySelector(`.monkey[data-monkey="${monkey.name}"]`);
+        const monkeyEl = document.querySelector(`.monkey[data-monkey="${monkey.id}"]`);
         if (!monkeyEl) return;
 
         const description = monkeyEl.querySelector('.description');
@@ -223,7 +269,7 @@ export class UIManager {
     }
 
     updateMonkeyDescription(monkey) {
-        const monkeyEl = document.querySelector(`.monkey[data-monkey="${monkey.name}"]`);
+        const monkeyEl = document.querySelector(`.monkey[data-monkey="${monkey.id}"]`);
         if (!monkeyEl) return;
 
         const description = monkeyEl.querySelector('.description');
@@ -327,14 +373,22 @@ export class UIManager {
     // =========================
     // =========================
     renderSkillTree() {
-        if (!Array.isArray(this.player?.allNodes)) return;
+        if (!Array.isArray(this.player?.allNodes)) {
+            console.warn("⚠️ player.allNodes não é um array ou não existe", this.player?.allNodes);
+            return;
+        }
 
-        // Atualiza todos os unlocks (skills comuns + masteries)
+        console.log("🔹 Atualizando skill tree...");
         SkillNode.updateAllUnlocks(this.player.allNodes, this.player);
 
         this.player.allNodes.forEach(node => {
+            // console.log("🔸 Processando node:", node.id, node);
+
             const button = document.getElementById(node.id);
-            if (!button) return;
+            if (!button) {
+                console.warn(`⚠️ Botão não encontrado para node.id = ${node.id}`);
+                return;
+            }
 
             // reset listeners
             const newButton = button.cloneNode(true);
@@ -347,16 +401,21 @@ export class UIManager {
             // clique genérico
             newButton.addEventListener("click", (ev) => {
                 ev.stopPropagation();
+                console.log(`➡️ Clicou no node: ${node.id}`, node);
 
                 if (!node.unlocked) {
+                    console.log("🔒 Node ainda bloqueado!");
                     this.showDeniedFeedBack(newButton);
                     return;
                 }
 
                 if (node.isMonkey) {
+                    console.log("🐵 Node é monkey, chamando showMonkeyCard");
                     this.queueUIUpdate(UIUpdateType.MONKEY);
                     this.queueUIUpdate(UIUpdateType.BANANA);
+                    this.showMonkeyCard(node);
                 } else {
+                    console.log("✨ Node não é monkey, chamando showNodeCard");
                     this.showNodeCard(node);
                 }
 
@@ -373,8 +432,61 @@ export class UIManager {
             if (node.level >= node.maxLevel) {
                 newButton.textContent = "[MAX]";
             }
+
+            this.checkAllUnlocks();
         });
     }
+
+
+    showMonkeyCard(node) {
+        console.group(`🟨 showMonkeyCard chamado para node.id = ${node.id}`);
+        if (!node) {
+            console.error("❌ node é undefined ou null!");
+            return;
+        } else {
+            console.log("Objeto completo do node:", node);
+            console.log("Nome:", node.name);
+            console.log("Descrição:", node.description);
+            console.log("Level atual:", node.level);
+            console.log("Max level:", node.maxLevel);
+            console.log("Custo próximo (getNextCost):", node.getNextCost?.());
+        }
+        console.groupEnd();
+
+        if (!node.unlocked) {
+            this.showDeniedFeedBack(document.getElementById(node.id));
+            return;
+        }
+
+        // Atualiza o skill card
+        this.skillCard.dataset.skillId = node.id;
+        this.cardTitle.textContent = node.name;
+        this.cardDescription.textContent = "";
+
+        // Se for monkey
+        if (node.isMonkey && node.targetMonkey) {
+            this.cardPrice.textContent = node.level >= node.maxLevel ? "[MAX]" : `Custo: ${formatNumber(node.getNextCost?.() || 0)}`;
+            this.cardProgress.textContent = `[${node.level} / ${node.maxLevel}]`;
+            this.cardBuyBtn.classList.toggle("hidden", node.level >= node.maxLevel);
+
+            // Modificadores ativos
+            const modifiers = this.player.getMonkeyModifiers?.(node.id) || [];
+            if (modifiers.length > 0) {
+                this.cardDescription.textContent = "Modificadores ativos:\n- " + modifiers.join("\n- ");
+            } else {
+                this.cardDescription.textContent = "Nenhum modificador aplicado ainda.";
+            }
+
+        } else {
+            // fallback caso não seja monkey
+            this.cardPrice.textContent = "";
+            this.cardProgress.textContent = "";
+            this.cardBuyBtn.classList.add("hidden");
+        }
+
+        this.skillCard.classList.remove("hidden");
+    }
+
 
 
     // =========================

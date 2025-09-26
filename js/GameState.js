@@ -88,10 +88,17 @@ export const GameState = {
         // =====================
         upgrades.forEach(monkey => {
             const savedMonkey = (data.upgrades || []).find(m => m.name === monkey.name);
+
+            // Defaults
+            if (monkey.cost == null) monkey.cost = monkey.baseCost ?? 0;
+            if (!monkey.getProduction) monkey.getProduction = function () {
+                return (this.baseProduction ?? 0) * (this.multiplier ?? 1);
+            };
+
             if (savedMonkey) {
                 monkey.level = savedMonkey.level ?? 0;
                 monkey.unlocked = savedMonkey.unlocked ?? false;
-                monkey.cost = savedMonkey.cost ?? monkey.baseCost;
+                monkey.cost = savedMonkey.cost ?? monkey.cost;
                 monkey.multiplier = savedMonkey.multiplier ?? 1;
                 monkey.costExponent = savedMonkey.costExponent ?? monkey.costExponent;
 

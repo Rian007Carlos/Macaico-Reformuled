@@ -9,10 +9,10 @@ body {
   grid-template-columns: 30% 1fr 30%;
   /* background: url(../bg/animals.png) center/cover no-repeat; */
   /* background: url(../bg/mystic-jungle.png) center/cover no-repeat; */
+  background: url(../bg/temple.png) center/cover no-repeat;
   /* background: url(../bg/mystic-jungle.png) center/cover no-repeat; */
   /* background: url(../bg/mystic-jungle.png) center/cover no-repeat; */
   /* background: url(../bg/mystic-jungle.png) center/cover no-repeat; */
-  background: url(../bg/mystic-jungle.png) center/cover no-repeat;
   /* background-size: 100%; */
   color: #fff;
   overflow: hidden;
