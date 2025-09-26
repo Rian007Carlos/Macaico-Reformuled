@@ -5,7 +5,7 @@ export const click = [
         description: "Aumenta o valor de cada clique em +1.",
         category: "click",
         maxLevel: 5,
-        unlockRequirements: [(player) => player.bananas >= 100],
+        unlockRequirements: [(player) => player.bananas >= 10],
         baseCost: 100,
         getCost: (level) => Math.floor(100 * Math.pow(1.5, level)),
         effect: (player, level) => {
@@ -16,7 +16,7 @@ export const click = [
     {
         id: "click-boost2",
         name: "Click Boost II",
-        description: "Aumenta o valor do clique em +2.",
+        description: "Aumenta o valor do clique em +5.",
         category: "click",
         maxLevel: 5,
         unlockRequirements: [
@@ -26,13 +26,13 @@ export const click = [
         getCost: (level) => Math.floor(500 * Math.pow(1.8, level)),
         effect: (player, level) => {
             const base = player.baseClickValue || 1;
-            player.clickValue = base + 5 + level * 2;
+            player.clickValue = base + 5 + level * 5;
         }
     },
     {
         id: "click-boost3",
         name: "Click Boost III",
-        description: "Aumenta o valor do clique manual em +5 por nível.",
+        description: "Aumenta o valor do clique manual em +10 por nível.",
         category: "click",
         maxLevel: 5,
         unlockRequirements: [
@@ -42,7 +42,7 @@ export const click = [
         getCost: (level) => Math.floor(5000 * Math.pow(2, level)),
         effect: (player, level) => {
             const base = player.baseClickValue || 1;
-            player.clickValue = base + 10 + level * 5;
+            player.clickValue = base + 10 + level * 10;
         }
     },
     {
@@ -51,7 +51,9 @@ export const click = [
         description: "Aumenta a chance de acerto crítico em 1% por nível.",
         category: "click",
         maxLevel: 10,
-        unlockRequirements: (player) => player.getSkillById("click-boost2"?.level >= 1),
+        unlockRequirements: [
+            (player) => player.getSkillById("click-boost2")?.level >= 5
+        ],
         baseCost: 250,
         getCost: (level) => Math.floor(250 * Math.pow(1.12, level)),
         effect: (player, level) => {
@@ -62,16 +64,16 @@ export const click = [
     {
         id: "crit-multiplier-boost",
         name: "Critical Multiplier",
-        description: "Aumenta o multiplicador de críticos em +0.1 por nível.",
+        description: "Aumenta o multiplicador de críticos em 50% por nível.",
         category: "click",
         maxLevel: 10,
         unlockRequirements: [
-            (player) => player.getSkillById("crit-chance-boost")?.level >= 5
+            (player) => player.getSkillById("click-boost2")?.level >= 5
         ],
         baseCost: 1000,
         getCost: (level) => Math.floor(1000 * Math.pow(1.15, level)),
         effect: (player, level) => {
-            player.critMultiplier = 2 + 0.1 * level;
+            player.critMultiplier = 2 + 0.5 * level;
         }
     },
     {
@@ -81,7 +83,7 @@ export const click = [
         category: "click",
         maxLevel: 5,
         unlockRequirements: [
-            (player) => player.getSkillById("click-boost1")?.level >= 3
+            (player) => player.getSkillById("banana-boost2")?.level >= 3
         ],
         baseCost: 1000,
         getCost: (level) => Math.floor(1000 * Math.pow(2, level)),
@@ -127,7 +129,7 @@ export const click = [
         category: "click",
         maxLevel: 5,
         unlockRequirements: [
-            (player) => player.getSkillById("auto-click2")?.level >= 3
+            (player) => player.getSkillById("auto-click2")?.level >= 5
         ],
         baseCost: 5000,
         getCost: (level) => 5000 * Math.pow(2, level),
@@ -143,7 +145,7 @@ export const click = [
         category: "click",
         maxLevel: 5,
         unlockRequirements: [
-            (player) => player.getSkillById("auto-click2")?.level >= 3
+            (player) => player.getSkillById("auto-click2")?.level >= 5
         ],
         baseCost: 5000,
         getCost: (level) => 5000 * Math.pow(2, level),

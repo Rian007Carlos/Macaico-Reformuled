@@ -36,21 +36,22 @@
         </div>
         <div id="banana-container">
             <button id="banana-button">
-                <img src="assets/banana-galaxy.png" alt="Banana Galaxy">
+                <img src="assets/banana-cat.png" alt="">
             </button>
             <p id="bananas-per-second"></p>
         </div>
     </div>
     <div id="left-panel">
-        <button id="open-skill-tree">Skill Tree</button>
+        <button id="open-skill-tree"></button>
         <div id="skill-tree" class="skill-tree-grid hidden">
 
             <button id="close-skill-tree" class="close-btn">X</button>
 
             <div class="skill-tooltip show"></div>
 
+
             <div id="skill-card" class="skill-card hidden">
-                <button id="card-close-btn" class="close-btn">X</button>
+                <!-- <button id="card-close-btn" class="close-btn">X</button> -->
                 <h2 id="card-title"></h2>
                 <p id="card-description"></p>
                 <span id="card-price"></span>
@@ -62,22 +63,24 @@
             <button id="click-boost1" class="skill-node click locked">ckb1</button>
             <div class="vertical-line ckb1-ckb2"></div>
             <button id="click-boost2" class="skill-node click locked">ckb2</button>
+            <div class="vertical-line ckb2-ckb3"></div>
+            <button id="click-boost3" class="skill-node click locked">ckb3</button>
             <div class="diagonal-line-left ckb2-ccc"></div>
             <div class="diagonal-line-right ckb2-ccm"></div>
-            <button id="click-crit-chance" class="skill-node click locked">ccc</button>
-            <button id="click-crit-multiplier" class="skill-node click locked">ccm</button>
+            <button id="crit-chance-boost" class="skill-node click locked">ccc</button>
+            <button id="crit-multiplier-boost" class="skill-node click locked">ccm</button>
             <div class="horizontal-line ckb2-ac1"></div>
             <button id="auto-click1" class="skill-node click locked">ac1</button>
             <div class="vertical-line ac1-ac2"></div>
             <button id="auto-click2" class="skill-node click locked">ac2</button>
             <div class="diagonal-line-left ac2-acc"></div>
             <div class="diagonal-line-right ac2-acm"></div>
-            <button id="auto-click-crit-chance" class="skill-node click locked">acc</button>
-            <button id="auto-click-crit-multiplier" class="skill-node click locked">acm</button>
+            <button id="auto-click-chance" class="skill-node click locked">acc</button>
+            <button id="auto-click-crit" class="skill-node click locked">acm</button>
             <div class="vertical-line ac2-hca"></div>
             <div class="vertical-line ac2-hcb"></div>
             <div class="vertical-line ac2-hcc"></div>
-            <button id="hold-click" class="skill-node click locked">hc</button>
+            <button id="hold-click1" class="skill-node click locked">hc</button>
 
             <!-- BANANA SKILLS -->
             <div class="vertical-line ckb1-bb1a"></div>
@@ -152,18 +155,11 @@
 
     <!-- Comentados por enquanto -->
     <!--
-    <div id="playlist-container"></div>
-    <div id="skills-container"></div>
-    <div id="dancing-monkey"><img src="assets/monkey-dancing.gif" alt=""></div>
-    -->
+        <div id="playlist-container"></div>
+        <div id="skills-container"></div>
+        <div id="dancing-monkey"><img src="assets/monkey-dancing.gif" alt=""></div>
+        -->
     <script type="module" src="./js/Main.js"></script>
-</body>
-
-</html>
-
-
-<!-- Scripts -->
-<script type="module" src="./js/Main.js"></script>
 </body>
 
 </html>

@@ -15,13 +15,9 @@ export function createMonkeySkillNodes(player) {
             baseCost: monkey.skillTreeBaseCost || 25,
             unlockRequirements: Array.isArray(monkey.unlockRequirements) ? monkey.unlockRequirements : [],
             effect: (player, level) => {
-                // atualiza o monkey real
-                const monkeyObj = monkey;
-                if (!monkeyObj) return;
-                monkeyObj.multiplier = 1 + 0.1 * level;
+                monkey.multiplier = 1 + 0.1 * level;
                 player.recalculateBPS();
 
-                // atualiza UI
                 if (player.uiManager) {
                     player.uiManager.queueUIUpdate(UIUpdateType.MONKEY);
                     player.uiManager.queueUIUpdate(UIUpdateType.BANANA);
@@ -29,13 +25,14 @@ export function createMonkeySkillNodes(player) {
             }
         });
 
+        // vincula o node ao monkey
+        monkey.skillNode = node;
 
+        // adiciona o node ao player
         player.addSkillNode(node);
-
     });
-
-
 }
+
 
 // checa e aplica unlocks de todos os monkeys via seus nodes
 export function checkMonkeyUnlocks(player) {

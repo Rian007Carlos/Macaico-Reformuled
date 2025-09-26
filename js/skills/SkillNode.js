@@ -20,7 +20,7 @@ export class SkillNode {
         this.category = category;
         this.level = level;
         this.maxLevel = maxLevel;
-        this.unlockRequirements = unlockRequirements;
+        this.unlockRequirements = Array.isArray(unlockRequirements) ? unlockRequirements : [];
         this.effect = effect;
         this.getCost = (typeof getCost === 'function') ? getCost : null;
         this.baseCost = (typeof baseCost === 'number') ? baseCost : null;
@@ -59,29 +59,23 @@ export class SkillNode {
 
     // --- requisitos ---
     canUnlock(player) {
+        if (!Array.isArray(this.unlockRequirements) || this.unlockRequirements.length === 0) {
+            return false; // evita liberar tudo automaticamente
+        }
+
         return this.unlockRequirements.every((fn, i) => {
-            let result = false;
             try {
-                result = fn(player);
+                return fn(player);
             } catch (e) {
                 console.error(`[SkillNode ${this.id}] Erro em unlockRequirement[${i}]`, e);
+                return false;
             }
-            console.log(
-                `[SkillNode ${this.id}] Req[${i}] ->`,
-                result,
-                fn.toString(),
-                " PlayerState:",
-                {
-                    skills: player.skills?.map(s => ({ id: s.id, level: s.level })),
-                    monkeys: player.upgradeMonkeys?.map(m => ({ name: m.name, level: m.level, unlocked: m.unlocked }))
-                }
-            );
-            return result;
         });
     }
 
+
     // --- desbloqueio ---
-    unlock(player, extra = null) {
+    unlock(player, uiManager = null, extra = null) {
         if (!this.unlocked && this.canUnlock(player)) {
             const cost = this.getNextCost(this.level);
             if (cost !== null && !player.spendBananas(cost)) return false;
@@ -89,17 +83,49 @@ export class SkillNode {
             this.unlocked = true;
             this.level = 1;
 
+            // Se for uma mastery de macaco, só aplica efeito
+            if (this.isMonkey && this.effect) {
+                this.effect(player, this.level, extra);
+            }
+
+            // Se tiver targetMonkey, mantém compatibilidade antiga
             if (this.targetMonkey) {
                 this.targetMonkey.unlocked = true;
             }
 
-            if (this.effect) this.effect(player, this.level, extra);
+            // Efeito padrão (skills comuns)
+            if (!this.isMonkey && this.effect) {
+                this.effect(player, this.level, extra);
+            }
+
+            // Atualiza UI via queue para upgrades
+            if (uiManager) {
+                uiManager.queueUIUpdate(UIUpdateType.BANANA);
+                uiManager.queueUIUpdate(UIUpdateType.MONKEY);
+            }
 
             return true;
         }
         return false;
     }
 
+    checkUnlock(player) {
+        if (!this.unlocked && this.canUnlock(player)) {
+            this.unlocked = true;
+            if (this.targetMonkey) this.targetMonkey.unlocked = true;
+            return true;
+        }
+        return false;
+    }
+
+    // método estático para atualizar uma lista de nodes
+    static updateAllUnlocks(nodes, player) {
+        nodes.forEach(node => {
+            if (typeof node.checkUnlock === 'function') { // safer than instanceof
+                node.checkUnlock(player);
+            }
+        });
+    }
     // --- upgrade ---
     upgrade(player, uiManager, extra = null) {
         if (!this.unlocked || this.level >= this.maxLevel) return false;

@@ -5,7 +5,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #15063d; /* fundo escuro */
+  background: #15063ddc; /* fundo escuro */
   display: grid;
   grid-template-columns: repeat(46, 30px); /* cada célula até 50px */
   grid-template-rows: repeat(29, 30px);
@@ -15,6 +15,20 @@
   box-sizing: border-box;
   z-index: 2;
 }
+
+#open-skill-tree {
+  background-color: transparent;
+  padding: 0;
+  width: 120px;
+  aspect-ratio: 1;
+  border-radius: 1em;
+  background-size: 155%;
+  /* border-radius: 2em; */
+  background-position: center;
+  background-image: url(../bg/skill-tree.png);
+
+}
+
 
 #close-skill-tree {
   position: absolute;
@@ -66,9 +80,11 @@
 
 #skill-card {
   width: calc(25px * 8);
-  min-height: calc(25px * 8);
-  height: fit-content;
-  background-color: #3d0638;
+  height: calc(25px * 13);
+  /* background-color: #3d0638; */
+  background-image: url(../bg/space-pixel.gif);
+  background-blend-mode: color-burn;
+  background-size: cover;
   color: rgba(255, 255, 255, 0.884);
   text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.652);
   border-radius: 15px;
@@ -86,6 +102,9 @@
   gap: 1em;
   font-size: 1em;
   padding: 2.2em;
+  text-align: center;
+  line-height: 1.4;
+  z-index: 3;
 }
 
 .skill-tooltip {
@@ -131,10 +150,10 @@
 
 /* locked */
 .skill-node.locked {
-  background: rgba(185, 74, 74, 0.347);
-  border: 2px dashed rgba(255, 255, 255, 0.363);
+  background: rgba(61, 61, 61, 0.719);
+  border: 2px dashed rgb(118, 117, 117);
   color: gray;
-  font-size: 1px;
+  /* font-size: 5px; */
 }
 
 /* hover */
@@ -179,6 +198,16 @@
   grid-row: 13;
 }
 
+.ckb2-ckb3 {
+  grid-column: 24;
+  grid-row: 12;
+}
+
+#click-boost3 {
+  grid-column: 24;
+  grid-row: 11;
+}
+
 
 
 .ckb2-ccc {
@@ -191,12 +220,12 @@
   grid-row: 14;
 }
 
-#click-crit-chance {
+#crit-chance-boost {
   grid-column: 22;
   grid-row: 11;
 }
 
-#click-crit-multiplier {
+#crit-multiplier-boost {
   grid-column: 22;
   grid-row: 15;
 }
@@ -236,7 +265,7 @@
   grid-row: 8;
 }
 
-#hold-click {
+#hold-click1 {
   grid-column: 26;
   grid-row: 7;
 }
@@ -251,12 +280,12 @@
   grid-row: 10;
 }
 
-#auto-click-crit-chance {
+#auto-click-chance {
   grid-column: 24;
   grid-row: 9;
 }
 
-#auto-click-crit-multiplier {
+#auto-click-crit {
   grid-column: 28;
   grid-row: 9;
 }
@@ -493,7 +522,7 @@
   width: 2px;
   margin: 0 auto;
   height: 100%;
-  background-color: #ec589db5;
+  background-color: #959293b5;
 }
 
 .diagonal-line-left {

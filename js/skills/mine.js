@@ -5,7 +5,7 @@ export const mine = [
         description: "Aumenta a eficiência das minas em +1 por nível.",
         category: "mine",
         maxLevel: 5,
-        unlockRequirements: [(player) => player.bananas >= 1000],
+        unlockRequirements: [(player) => player.getSkillById("banana-boost3")?.level >= 5],
         baseCost: 500,
         getCost: (level) => Math.floor(500 * Math.pow(1.5, level)),
         effect: (player, level) => {

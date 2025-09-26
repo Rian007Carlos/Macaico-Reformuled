@@ -5,7 +5,7 @@ export const bananas = [
         description: "Aumenta a produção de bananas em +1 por clique.",
         category: "banana",
         maxLevel: 5,
-        unlockRequirements: [(player) => player.getSkillById("click-boost1")?.level >= 1],
+        unlockRequirements: [(player) => player.getSkillById("click-boost2")?.level >= 3],
         baseCost: 100,
         getCost: (level) => Math.floor(100 * Math.pow(1.5, level)),
         effect: (player, level) => {

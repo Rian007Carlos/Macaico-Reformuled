@@ -4,6 +4,7 @@ import { SFX } from './sfx/sfx.js';
 import { bgmManager } from './sfx/bgmManager.js';
 import { Telemetry } from './telemetry.js';
 import { checkMonkeyUnlocks } from './skills/MonkeySkillNodes.js';
+import { SkillNode } from './skills/SkillNode.js';
 
 
 
@@ -66,7 +67,7 @@ export class UIManager {
             if (!skill.unlocked) skill.unlock(this.player);
             else skill.upgrade(this.player, this);
 
-            this.showSkillCard(skill);   // atualiza card
+            this.showNodeCard(skill);   // atualiza card
             this.renderSkillTree();      // atualiza árvore
         });
 
@@ -94,7 +95,8 @@ export class UIManager {
                 isCrit = false;
             }
 
-            this.player.addBananas(clickValue, true);
+            // this.player.addBananas(clickValue, true);
+            this.player.addBananas(1000, true);
             this.createFloatingText(clickValue, isCrit);
             this.updateBananaDisplay(this.player.bananas);
             this.queueUIUpdate(UIUpdateType.SKILL);
@@ -108,7 +110,7 @@ export class UIManager {
 
         const text = document.createElement("div");
         text.className = "floating-text" + (isCrit ? " crit" : "");
-        text.innerText = `+${Math.floor(value)}🍌`;
+        text.innerHTML = `+${Math.floor(value)} <img src="assets/banana-cat.png" alt="">`;
 
         const offsetX = (Math.random() - 0.5) * 200;
         const offsetY = (Math.random() - 0.5) * 50;
@@ -323,48 +325,109 @@ export class UIManager {
     // =========================
     // 5️⃣ Skill Tree
     // =========================
+    // =========================
     renderSkillTree() {
-        if (!Array.isArray(this.player?.skills)) return;
+        if (!Array.isArray(this.player?.allNodes)) return;
 
-        // atualiza cada botão/nó já existente no HTML (não cria nada)
-        this.player.skills.forEach(skill => {
-            const button = document.getElementById(skill.id);
+        // Atualiza todos os unlocks (skills comuns + masteries)
+        SkillNode.updateAllUnlocks(this.player.allNodes, this.player);
+
+        this.player.allNodes.forEach(node => {
+            const button = document.getElementById(node.id);
             if (!button) return;
 
-            // classes visuais
-            button.classList.toggle("locked", !skill.unlocked);
-            button.classList.toggle("unlocked", skill.unlocked);
-            button.classList.toggle("maxed", skill.level >= skill.maxLevel);
-
-            // substitui por clone para remover listeners antigos
+            // reset listeners
             const newButton = button.cloneNode(true);
             button.replaceWith(newButton);
 
-            // adiciona listener do node (usa addEventListener e impede propagação)
+            // classes visuais
+            newButton.classList.toggle("locked", !node.unlocked);
+            newButton.classList.toggle("unlocked", node.unlocked);
+
+            // clique genérico
             newButton.addEventListener("click", (ev) => {
-                ev.stopPropagation();        // **ESSENCIAL**: evita que o clique no node ative o listener do container
-                this.showSkillCard(skill);
+                ev.stopPropagation();
+
+                if (!node.unlocked) {
+                    this.showDeniedFeedBack(newButton);
+                    return;
+                }
+
+                if (node.isMonkey) {
+                    this.queueUIUpdate(UIUpdateType.MONKEY);
+                    this.queueUIUpdate(UIUpdateType.BANANA);
+                } else {
+                    this.showNodeCard(node);
+                }
+
+                // só mostra [MAX] quando atingir nível máximo
+                if (node.level >= node.maxLevel) {
+                    newButton.textContent = "[MAX]";
+                }
             });
+
+            // tooltip/descrição visível no hover
+            newButton.title = node.unlocked ? node.description : "???";
+
+            // aplica texto [MAX] inicial se necessário
+            if (node.level >= node.maxLevel) {
+                newButton.textContent = "[MAX]";
+            }
         });
     }
 
 
-    showSkillCard(skill) {
-        if (!skill.unlocked) {
-            // opcional: mostrar tooltip de "bloqueado"
-            this.showDeniedFeedBack(document.getElementById(skill.id));
+    // =========================
+    showNodeCard(node) {
+        if (!node.unlocked) {
+            this.showDeniedFeedBack(document.getElementById(node.id));
             return;
         }
 
-        this.skillCard.dataset.skillId = skill.id;
-        this.cardTitle.textContent = skill.name;
-        this.cardDescription.textContent = skill.description || "";
-        const cost = skill.getNextCost();
-        this.cardPrice.textContent = cost !== null ? `Custo: ${formatNumber(cost)}` : "";
-        this.cardProgress.textContent = `[${skill.level} / ${skill.maxLevel}]`;
+        this.skillCard.dataset.skillId = node.id;
+        this.cardTitle.textContent = node.name;
+        this.cardDescription.textContent = node.description || "";
+
+        if (node.isMonkey) {
+            // === Mastery dos macacos ===
+            this.cardDescription.textContent = "";
+            this.cardPrice.textContent = "";
+            this.cardProgress.textContent = "";
+            this.cardBuyBtn.classList.add("hidden");
+
+            const modifiers = this.player.getMonkeyModifiers?.(node.id) || [];
+
+            this.cardDescription.textContent += "\n\nModificadores ativos:";
+            if (modifiers.length > 0) {
+                this.cardDescription.textContent += "\n- " + modifiers.join("\n- ");
+            } else {
+                this.cardDescription.textContent += "\nNenhum modificador aplicado ainda.";
+            }
+
+        } else if (typeof node.getNextCost === "function") {
+            // === Skills comuns ===
+            const cost = node.getNextCost();
+            if (node.level >= node.maxLevel) {
+                this.cardPrice.textContent = "[MAX]";
+                this.cardProgress.textContent = `[${node.level} / ${node.maxLevel}]`;
+                this.cardBuyBtn.classList.add("hidden");
+            } else {
+                this.cardPrice.textContent = cost !== null ? `Custo: ${formatNumber(cost)}` : "";
+                this.cardProgress.textContent = `[${node.level} / ${node.maxLevel}]`;
+                this.cardBuyBtn.classList.remove("hidden");
+            }
+        } else {
+            // fallback
+            this.cardPrice.textContent = "";
+            this.cardProgress.textContent = "";
+            this.cardBuyBtn.classList.add("hidden");
+        }
 
         this.skillCard.classList.remove("hidden");
     }
+
+
+
     setupSkillTreeListeners() {
         // Botões de abrir/fechar skill tree
         if (this.openSkillTreeBtn) {
@@ -373,22 +436,6 @@ export class UIManager {
         if (this.closeSkillTreeBtn) {
             this.closeSkillTreeBtn.addEventListener("click", () => this.closeSkillTree());
         }
-
-        // Botões das skills
-        this.player.skills.forEach(skill => {
-            const button = document.getElementById(skill.id);
-            if (!button) return;
-
-            const newButton = button.cloneNode(true);
-            button.replaceWith(newButton);
-            newButton.addEventListener("click", () => {
-                if (!skill.unlocked) {
-                    this.showDeniedFeedBack(newButton);
-                    return;
-                }
-                this.showSkillCard(skill);
-            });
-        });
 
         this.cardCloseBtn = document.getElementById("card-close-btn");
         if (this.cardCloseBtn) {
@@ -424,6 +471,7 @@ export class UIManager {
     openSkillTree() {
         this.skillTreeContainer.classList.remove("hidden");
         this.renderSkillTree();
+
     }
 
     closeSkillTree() {

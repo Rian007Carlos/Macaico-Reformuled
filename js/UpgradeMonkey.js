@@ -2,6 +2,7 @@ import { UIUpdateType } from "./uiManager.js";
 
 export class UpgradeMonkey {
     constructor({
+        id,
         name,
         cost,
         baseProduction,
@@ -10,6 +11,7 @@ export class UpgradeMonkey {
         unlockRequirements = [],
         skillTreeBaseCost = 25
     }) {
+        this.id = id;
         this.name = name;
         this.baseCost = cost;
         this.cost = cost;

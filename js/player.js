@@ -59,8 +59,12 @@ export class Player {
         this.milestonesReached = {};
     }
 
-    getMonkeyByName(name) {
-        return this.upgrades.find(m => m.name === name);
+    // getMonkeyByName(name) {
+    //     return this.upgrades.find(m => m.name === name);
+    // }
+
+    getMonkeyById(id) {
+        return this.upgrades.find(m => m.id === id);
     }
 
     // === Recursos comuns ===
@@ -195,7 +199,11 @@ export class Player {
         if (!this.autoClickIntervalID) this.startAutoClick();
     }
 
-
+    get allNodes() {
+        return [
+            ...this.skills,
+        ];
+    }
 
     // === Skills ===
     addSkillNode(skillNode) {

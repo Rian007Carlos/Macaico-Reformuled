@@ -9,12 +9,14 @@
 }
 
 #banana-button {
+  background-image: none;
   aspect-ratio: 1;
   display: block;
-  width: 150px;
+  width: 250px;
   z-index: 2;
   background-color: transparent;
   padding: 0;
+  overflow: hidden;
 }
 
 #banana-button img {
@@ -42,14 +44,16 @@ button {
   padding: 5px 10px;
   border: none;
   border-radius: 6px;
-  background: #ffa500;
-  color: #000;
+  /* background: #ffa500; */
+  /* background-image: url(../bg/space.gif); */
+  color: #ffffff;
+  text-shadow: 4px 4px 8px black;
   font-weight: bold;
   cursor: pointer;
 }
 
 button:hover {
-  border: 2px solid rgb(239, 239, 239);
+  outline: 2px solid rgb(239, 239, 239);
 }
 
 .close-btn:hover {
@@ -70,13 +74,22 @@ button:hover {
   animation: floatUp 1s ease-out forwards;
   color: white;
   text-shadow: 1px 1px 3px black;
-  z-index: 1000;
+  z-index: 2;
 }
 
 .floating-text.crit {
+position: absolute;
   font-size: 32px;
   color: #ffa500;
   text-shadow: 2px 2px 6px black;
+}
+
+.floating-text img {
+  width: 50px;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  transform: rotate(25deg);
 }
 
 /* Animações */
