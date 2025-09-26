@@ -2,47 +2,76 @@ export const click = [
     {
         id: "click-boost1",
         name: "Click Boost I",
-        description: "Aumenta o valor de cada clique em +1.",
+        description: "Aumenta o valor de cada clique em +1, +2, +3... até 100.",
         category: "click",
-        maxLevel: 5,
+        maxLevel: 100,
         unlockRequirements: [(player) => player.bananas >= 10],
         baseCost: 100,
-        getCost: (level) => Math.floor(100 * Math.pow(1.5, level)),
+        getCost: (level) => Math.floor(100 * Math.pow(1.2, level)), // curva mais suave para 100 níveis
         effect: (player, level) => {
-            const base = player.baseClickValue || 1;
-            player.clickValue = base + level;
+            // Soma aritmética: 1 + 2 + ... + level = level*(level+1)/2
+            const boost = (level * (level + 1)) / 2;
+            player.clickBoost1 = boost;
+            player.updateClickValue();
         }
     },
     {
         id: "click-boost2",
         name: "Click Boost II",
-        description: "Aumenta o valor do clique em +5.",
+        description: "Aumenta o valor de clique em múltiplos de 5 (+5, +10, +15...).",
         category: "click",
-        maxLevel: 5,
+        maxLevel: 50,
         unlockRequirements: [
-            (player) => player.getSkillById("click-boost1")?.level >= 5
+            (player) => player.getSkillById("click-boost1")?.level >= 20
         ],
         baseCost: 500,
-        getCost: (level) => Math.floor(500 * Math.pow(1.8, level)),
+        getCost: (level) => Math.floor(500 * Math.pow(1.4, level)),
         effect: (player, level) => {
-            const base = player.baseClickValue || 1;
-            player.clickValue = base + 5 + level * 5;
+            // Soma aritmética em múltiplos de 5: 5*(1+2+...+level) = 5 * level*(level+1)/2
+            const boost = 5 * (level * (level + 1)) / 2;
+            player.clickBoost2 = boost;
+            player.updateClickValue();
         }
     },
     {
         id: "click-boost3",
         name: "Click Boost III",
-        description: "Aumenta o valor do clique manual em +10 por nível.",
+        description: "Aumenta o valor do clique em múltiplos de 10 (+10, +20, +30...).",
         category: "click",
-        maxLevel: 5,
+        maxLevel: 25,
         unlockRequirements: [
-            (player) => player.getSkillById("click-boost2")?.level >= 5
+            (player) => player.getSkillById("click-boost2")?.level >= 25
         ],
         baseCost: 5000,
-        getCost: (level) => Math.floor(5000 * Math.pow(2, level)),
+        getCost: (level) => Math.floor(5000 * Math.pow(1.6, level)),
         effect: (player, level) => {
-            const base = player.baseClickValue || 1;
-            player.clickValue = base + 10 + level * 10;
+            const boost = 10 * (level * (level + 1)) / 2;
+            player.clickBoost3 = boost;
+            player.updateClickValue();
+        }
+    },
+    {
+        id: "click-evo",
+        name: "Click Evolution",
+        description: "Evolui todos os boosts de clique em um multiplicador poderoso.",
+        category: "click",
+        maxLevel: 10,
+        unlockRequirements: [
+            (player) => player.getSkillById("click-boost3")?.level >= 10
+        ],
+        baseCost: 50, // mas esse vai custar prismatics
+        getCost: (level) => (level + 1) * 5, // exemplo: 5,10,15 prismatics
+        effect: (player, level) => {
+            // Soma todos os boosts
+            const totalBoost = (player.clickBoost1 || 0) +
+                (player.clickBoost2 || 0) +
+                (player.clickBoost3 || 0);
+
+            // Multiplicador progressivo
+            const multiplier = 1 + 0.2 * level; // exemplo: 1.2x, 1.4x, até 3x
+            player.clickEvolution = totalBoost * multiplier;
+
+            player.updateClickValue();
         }
     },
     {
@@ -88,7 +117,7 @@ export const click = [
         baseCost: 1000,
         getCost: (level) => Math.floor(1000 * Math.pow(2, level)),
         effect: (player, level) => {
-            player.autoClickEnabled = true;
+            player.autoClickEnabled = false;
             player.autoClickSpeed = Math.max(5 - level * 0.8, 0.5);
             player.autoClickMultiplier = 1 + 0.1 * level;
             const newClicker = {

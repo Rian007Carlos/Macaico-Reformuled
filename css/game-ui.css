@@ -32,7 +32,23 @@
 #upgrades-container {
   display: flex;
   flex-direction: column;
-  gap: 1em;
+  height: 100%;
+  border-radius: .5em;
+  background: #000000a6;
+  border: 4px solid rgb(167, 167, 167);
+  overflow: auto;
+  scrollbar-width: none;
+
+}
+.monkeyUpgrade {
+  background-color: #7037c970;
+  padding: 1em 2px;
+  line-height: 1.8;
+
+}
+
+.monkeyUpgrade:not(:last-child) {
+  border-bottom: 2px solid rgb(212, 209, 209);
 }
 
 .monkey:hover {
@@ -44,7 +60,7 @@ button {
   padding: 5px 10px;
   border: none;
   border-radius: 6px;
-  /* background: #ffa500; */
+  background: #ffa500;
   /* background-image: url(../bg/space.gif); */
   color: #ffffff;
   text-shadow: 4px 4px 8px black;

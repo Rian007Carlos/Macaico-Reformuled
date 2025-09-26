@@ -14,7 +14,8 @@ export class Player {
 
         // Produção
         this.bananasPerSecond = 0;
-        this.clickValue = 1;
+        this.baseClickValue = 1;
+        this.clickValue = this.baseClickValue;
         this.critChance = 0;
         this.critMultiplier = 0;
 
@@ -132,6 +133,18 @@ export class Player {
         // UI: só atualizar o HUD, não a lista inteira
         this.refreshHUD(UIUpdateType.BANANA);
     }
+
+    updateClickValue() {
+        const base = this.baseClickValue || 1;
+
+        const boost1 = this.clickBoost1 || 0;
+        const boost2 = this.clickBoost2 || 0;
+        const boost3 = this.clickBoost3 || 0;
+        const evo = this.clickEvolution || 0;
+
+        this.clickValue = base + boost1 + boost2 + boost3 + evo;
+    }
+
 
     // === Mouse Hold Production
     startHoldClick() {

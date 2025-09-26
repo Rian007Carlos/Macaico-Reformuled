@@ -71,7 +71,7 @@ export const upgradeMonkeys = [
         baseProduction: 5000,
         cost: 100000,
         unlockRequirements: [
-            (player) => player.getSkillById("banana-boost1")?.level >= 10
+            (player) => player.getSkillById("banana-boost3")?.level >= 5
         ],
         costExponent: 1.5,
         skillTreeBaseCost: 420000
@@ -93,7 +93,7 @@ export const upgradeMonkeys = [
         baseProduction: 100000,
         cost: 2500000,
         unlockRequirements: [
-            (player) => player.getSkillById("banana-boost2")?.level >= 10
+            (player) => player.getSkillById("banana-boost3")?.level >= 20
         ],
         costExponent: 1.6,
         skillTreeBaseCost: 1240000

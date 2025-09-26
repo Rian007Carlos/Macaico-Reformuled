@@ -71,44 +71,32 @@ export class UIManager {
             const skill = this.player.getSkillById(skillId);
             if (!skill) return;
 
-            console.group(`🟢 Clicou no botão Comprar para skillId = ${skillId}`);
-            console.log("Objeto do skill antes da compra:", skill, "É SkillNode?", skill instanceof SkillNode);
-            console.log("Level atual:", skill.level, "Max level:", skill.maxLevel);
-
             if (!skill.unlocked) {
-                console.log("Skill estava bloqueada. Chamando unlock...");
                 skill.unlock(this.player);
             } else {
                 if (skill.isMonkey && skill.targetMonkey) {
-                    console.log("🐵 Skill é monkey, tratando mastery...");
-                    console.log("Level monkey antes:", skill.targetMonkey.level);
-
                     if (skill.level < skill.maxLevel) {
                         skill.level++;
                         skill.targetMonkey.level = skill.level; // sincroniza
-                        console.log("Level monkey atualizado:", skill.targetMonkey.level);
 
                         skill.effect(this.player, skill.level); // aplica efeito
-                        console.log("Efeito aplicado. Produção recalculada:", this.player.bananasPerSecond);
-                    } else {
-                        console.log("Skill monkey já está no nível máximo.");
+
                     }
                 } else {
-                    console.log("✨ Skill normal, chamando upgrade...");
                     skill.upgrade(this.player, this);
                 }
             }
 
             // Atualiza card e árvore
             if (skill.isMonkey) {
-                console.log("Atualizando card de monkey...");
+
                 this.showMonkeyCard(skill);
             } else {
-                console.log("Atualizando card de skill normal...");
+
                 this.showNodeCard(skill);
             }
 
-            console.groupEnd();
+
             this.renderSkillTree();
         });
 
@@ -138,11 +126,10 @@ export class UIManager {
                 isCrit = false;
             }
 
-            // this.player.addBananas(clickValue, true);
-            this.player.addBananas(1000, true);
+            this.player.addBananas(clickValue, true);
+            // this.player.addBananas(1000, true);
             this.createFloatingText(clickValue, isCrit);
             this.updateBananaDisplay(this.player.bananas);
-            this.queueUIUpdate(UIUpdateType.SKILL);
         });
     }
 
@@ -222,7 +209,7 @@ export class UIManager {
         if (!container || container.querySelector(`[data-monkey="${monkey.id}"]`)) return;
 
         const monkeyEl = document.createElement('div');
-        monkeyEl.classList.add('monkey');
+        monkeyEl.classList.add('monkeyUpgrade');
         monkeyEl.setAttribute('data-monkey', monkey.id);
 
         const description = document.createElement('span');
@@ -374,11 +361,9 @@ export class UIManager {
     // =========================
     renderSkillTree() {
         if (!Array.isArray(this.player?.allNodes)) {
-            console.warn("⚠️ player.allNodes não é um array ou não existe", this.player?.allNodes);
             return;
         }
 
-        console.log("🔹 Atualizando skill tree...");
         SkillNode.updateAllUnlocks(this.player.allNodes, this.player);
 
         this.player.allNodes.forEach(node => {
@@ -401,21 +386,21 @@ export class UIManager {
             // clique genérico
             newButton.addEventListener("click", (ev) => {
                 ev.stopPropagation();
-                console.log(`➡️ Clicou no node: ${node.id}`, node);
+
 
                 if (!node.unlocked) {
-                    console.log("🔒 Node ainda bloqueado!");
+
                     this.showDeniedFeedBack(newButton);
                     return;
                 }
 
                 if (node.isMonkey) {
-                    console.log("🐵 Node é monkey, chamando showMonkeyCard");
+
                     this.queueUIUpdate(UIUpdateType.MONKEY);
                     this.queueUIUpdate(UIUpdateType.BANANA);
                     this.showMonkeyCard(node);
                 } else {
-                    console.log("✨ Node não é monkey, chamando showNodeCard");
+
                     this.showNodeCard(node);
                 }
 
@@ -439,19 +424,8 @@ export class UIManager {
 
 
     showMonkeyCard(node) {
-        console.group(`🟨 showMonkeyCard chamado para node.id = ${node.id}`);
-        if (!node) {
-            console.error("❌ node é undefined ou null!");
-            return;
-        } else {
-            console.log("Objeto completo do node:", node);
-            console.log("Nome:", node.name);
-            console.log("Descrição:", node.description);
-            console.log("Level atual:", node.level);
-            console.log("Max level:", node.maxLevel);
-            console.log("Custo próximo (getNextCost):", node.getNextCost?.());
-        }
-        console.groupEnd();
+
+        if (!node) return;
 
         if (!node.unlocked) {
             this.showDeniedFeedBack(document.getElementById(node.id));
@@ -582,6 +556,7 @@ export class UIManager {
 
     openSkillTree() {
         this.skillTreeContainer.classList.remove("hidden");
+        this.queueUIUpdate(UIUpdateType.SKILL);
         this.renderSkillTree();
 
     }

@@ -71,35 +71,41 @@ body {
 
 /* Responsividade */
 @media(max-width: 768px) {
-  body {
-    font-size: 1em;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-  }
+body {
+  font-size: 2em;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+}
 
-  #hud {
-    width: 100%;
-    left: 0;
-    display: flex;
-    justify-content: space-between;
-  }
+#hud {
+  width: 100%;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+}
 
-  .counters {
-    display: flex;
-    justify-content: center;
-    gap: .4em;
-    font-size: .8em;
-  }
+.counters {
+  display: flex;
+  justify-content: center;
+  gap: .4em;
+  font-size: .8em;
+}
 
-  #upgrades-container {
-    width: 100%;
-    flex-direction: column;
-  }
+#upgrades-container {
+  width: 100%;
+  flex-direction: column;
+}
 
-  .monkey {
-    display: flex;
-  }
+.monkey {
+  display: flex;
+}
+
+#skill-tree {
+  overflow: auto;
+  
+}
+
 }
